@@ -9,6 +9,7 @@ module.exports = {
     "vue/setup-compiler-macros": true
   },
   "rules": {
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "no-empty": "off"
   }
 }

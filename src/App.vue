@@ -3,7 +3,7 @@
   overflow: hidden;
 } */
 
-[v-cloak]>* {
+[v-cloak] > * {
   display: none;
 }
 
@@ -28,7 +28,8 @@ body {
   justify-content: center;
   height: 100%;
 
-  background-color: #bbcedd;
+  background-color: #0e8938;
+  box-shadow: 0px 0px 60px 27px #000000ab inset;
 }
 </style>
 
