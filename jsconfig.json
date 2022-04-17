@@ -1,8 +1,6 @@
 {
-  // This file is required for VSCode to understand webpack aliases
   "compilerOptions": {
     "baseUrl": ".",
-    // Relative to "baseUrl"
     "paths": {
       "@/*": [
         "./src/*"
@@ -10,8 +8,12 @@
       "components/*": [
         "./src/components/*"
       ],
-    }
+    },
+    "jsx": "preserve",
   },
+  // "vueCompilerOptions": {
+  //   "experimentalDisableTemplateSupport": true
+  // },
   "exclude": [
     ".git",
     ".app-cache",
