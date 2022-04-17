@@ -73,11 +73,13 @@ const meth = {
         const stack = state.tableStack[zoneData.zoneID].slice(position + 1, stackLength)
         // console.log(stack)
 
-        event.dataTransfer.setData('nestedCardData', JSON.stringify(stack))
+        state.dragData = [...stack]
 
         stack.forEach(item => {
-          // TODO: hide card
+          item.hidden = true // TODO: hide card
         })
+
+        // event.dataTransfer.setData('nestedCardData', JSON.stringify(stack))
 
         event.dataTransfer.setDragImage(state.dragImage, event.offsetX, event.offsetY)
       }
@@ -103,6 +105,13 @@ const meth = {
     // console.log('endDrag')
     event.target.style.opacity = '1'
 
+    if (state.dragData) {
+      state.dragData.forEach(item => {
+        item.hidden = false
+      })
+      state.dragData = null
+    }
+
     const ghost = document.getElementById("drag-stack")
     if (ghost) {
       ghost.remove()
@@ -112,13 +121,6 @@ const meth = {
 
   onDropZone(event, data) {
     console.log('onDrop', event, data)
-
-    const _nestedCardStack = event.dataTransfer.getData('nestedCardData')
-    let nestedCardData = null
-
-    if (_nestedCardStack) {
-      nestedCardData = JSON.parse(_nestedCardStack)
-    }
 
     const cardData = JSON.parse(event.dataTransfer.getData('card'))
     const zoneData = JSON.parse(event.dataTransfer.getData('zone'))
@@ -133,8 +135,8 @@ const meth = {
           state.tableStack[data.areaID].push(cardData)
           meth.deleteFromZone(zoneData, cardData)
 
-          if (nestedCardData) {
-            nestedCardData.forEach((item) => {
+          if (state.dragData) {
+            state.dragData.forEach((item) => {
               state.tableStack[data.areaID].push(item)
               meth.deleteFromZone(zoneData, item)
             })
@@ -152,8 +154,8 @@ const meth = {
           state.tableStack[data.areaID].push(cardData)
           meth.deleteFromZone(zoneData, cardData)
 
-          if (nestedCardData) {
-            nestedCardData.forEach((item) => {
+          if (state.dragData) {
+            state.dragData.forEach((item) => {
               state.tableStack[data.areaID].push(item)
               meth.deleteFromZone(zoneData, item)
             })

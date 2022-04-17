@@ -51,6 +51,7 @@
       :key="meth.getKey(card)"
       :card-data="card"
       :is-draggable="props.isDraggable"
+      :is-collapsed="props.isCollapsed"
       :zone-id="props.zoneId"
       :zone-name="props.zoneName"
     />
@@ -81,6 +82,10 @@ const props = defineProps({
   isDraggable: {
     type: Boolean,
     default: true
+  },
+  isCollapsed: {
+    type: Boolean,
+    default: false
   },
   stackData: {
     type: Array,
