@@ -24,8 +24,9 @@ body {
 
 #app {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* center */
   justify-content: center;
+  padding-top: 100px;
   height: 100%;
 
   background-color: #0e8938;

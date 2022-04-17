@@ -4,52 +4,49 @@
 //   // height: 800px;
 // }
 
+// img {
+//   pointer-events: none;
+// }
+
+$card-w: 100px;
+$card-h: 145px;
+$gap: 40px;
+
 .top {
   display: flex;
   justify-content: space-between;
 }
 
-// img {
-//   pointer-events: none;
-// }
-
 .deck-table {
-  height: 180px;
   position: relative;
   display: flex;
-  // justify-self: flex-start;
-  gap: 10px;
+  gap: $gap;
 }
 
 .finish-table {
-  height: 150px;
-  // justify-self: flex-end;
-
   position: relative;
   display: flex;
   flex-direction: row;
-  // justify-content: flex-end;
 
-  gap: 20px;
+  gap: $gap;
 }
 
 .table {
-  // width: 100%;
-  // height: 100%;
+  margin-top: 30px;
 
-  height: 500px;
+  height: auto; // 500px
 
   position: relative;
   display: flex;
   flex-direction: row;
   justify-content: center;
 
-  gap: 20px;
+  gap: $gap;
 }
 
 .card-stack {
   position: relative;
-  width: 100px;
+  width: $card-w;
 
   // margin-left: 10px;
 }
@@ -57,8 +54,8 @@
 .empty-place {
   display: block;
   position: absolute;
-  width: 100px;
-  height: 145px;
+  width: $card-w;
+  height: $card-h;
   top: 0;
 
   outline: 1px solid rgb(0 0 0 / 50%);
@@ -67,38 +64,19 @@
 }
 
 .drag-zone {
-  width: 100px;
-  height: 145px;
+  width: $card-w;
+  height: $card-h;
 
   outline: 1px solid rgb(0 0 0 / 50%);
   border-radius: 6px;
   box-shadow: 0px 0px 20px 5px rgb(0 0 0 / 19%) inset;
 }
 
-.drag-stack {
-  width: 100px;
-  .card-stack {
-    display: flex;
-
-    width: 100px;
-    height: 145px;
-
-    border-radius: 6px;
-
-    @for $i from 1 through 13 {
-      &:not(:first-child):nth-child(#{$i}) {
-        top: #{($i - 1) * 20}px;
-        position: absolute;
-      }
-    }
-  }
-}
-
 .card {
   display: flex;
 
-  width: 100px;
-  height: 145px;
+  width: $card-w;
+  height: $card-h;
 
   border-radius: 6px;
 
@@ -108,25 +86,29 @@
     outline: 1px solid rgba(0, 0, 0, 0.7);
   }
 
-  // &:not(.closed):active {
-  //   border-radius: 6px;
-  //   outline: 1px solid transparent !important;
-  // }
-
-  // &.closed:not(:first-child):nth-child(#{$i}) {
-  //   top: #{($i - 1) * 10}px;
-  //   position: absolute;
-  // }
-
-  // &:not(.closed):not(:first-child):nth-child(#{$i}) {
-  //   top: #{($i - 1) * 20}px;
-  //   position: absolute;
-  // }
-
   @for $i from 1 through 13 {
     &:not(:first-child):nth-child(#{$i}) {
       top: #{($i - 2) * 20}px;
       position: absolute;
+    }
+  }
+}
+
+.drag-stack {
+  width: $card-w;
+  .card-stack {
+    display: flex;
+
+    width: $card-w;
+    height: $card-h;
+
+    border-radius: 6px;
+
+    @for $i from 1 through 13 {
+      &:not(:first-child):nth-child(#{$i}) {
+        top: #{($i - 1) * 20}px;
+        position: absolute;
+      }
     }
   }
 }
@@ -175,7 +157,7 @@
             :style="meth.getCardImageStyle(card)"
             @dragstart="meth.startDrag($event, { zone: 'finish', zoneID: idx }, card)"
             @dragend="meth.endDrag($event)"
-            :key="card.rank + card.suit"
+            :key="meth.getKey(card)"
           ></div>
         </div>
       </div>
@@ -194,9 +176,9 @@
         <div
           draggable="true"
           class="card"
-          :class="[card.opened ? '' : 'closed', card]"
+          :class="[card.opened ? '' : 'closed', 'card']"
           v-for="card in cardStack"
-          :key="card.rank + card.suit"
+          :key="meth.getKey(card)"
           :style="meth.getCardImageStyle(card)"
           @dragstart="meth.startDrag($event, { zone: 'table', zoneID: idx }, card)"
           @dragend="meth.endDrag($event)"
@@ -230,10 +212,16 @@ const state = reactive({
 
   table: [[], [], [], [], [], [], []],
 
-  dragImage: null
+  dragImage: null,
+
+  dragData: null
 })
 
 const meth = {
+
+  getKey(card) {
+    return `${card?.rank}-${card?.suit}`
+  },
 
   createGhost(zoneData, cardData) {
 
