@@ -32,7 +32,7 @@
   <div
     @dragenter.prevent
     @dragover.prevent
-    @drop="meth.onDropZone($event, { area: zoneName, areaID: zoneId })"
+    @drop="draggable.meth.handleDropZone($event, props.zoneData)"
     class="card-stack"
   >
     <!-- <div
@@ -48,53 +48,48 @@
 
     <Card
       v-for="card in props.stackData"
-      :key="meth.getKey(card)"
-      :card-data="card"
+      :key="game.meth.getKey(card)"
+
       :is-draggable="props.isDraggable"
       :is-collapsed="props.isCollapsed"
-      :zone-id="props.zoneId"
-      :zone-name="props.zoneName"
+      :zone-data="props.zoneData"
+      :card-data="card"
     />
 
   </div>
 </template>
 
 <script  setup>
-import game from '@/store/game'
 import Card from './Card.vue'
-import { onMounted } from 'vue'
-
-const { state, meth } = game
+import draggable from '@/store/draggable'
+import game from '@/store/game'
 
 const props = defineProps({
-  zoneName: {
-    type: String,
-    default: ''
-  },
-  zoneId: {
-    type: Number,
-    default: -1
-  },
   isDroppable: {
     type: Boolean,
     default: false
   },
   isDraggable: {
     type: Boolean,
-    default: true
+    default: false
   },
   isCollapsed: {
     type: Boolean,
     default: false
   },
+  zoneData: {
+    type: Object,
+    default: () => {
+      return {
+        name: '',
+        id: -1
+      }
+    }
+  },
   stackData: {
     type: Array,
     default: () => []
   }
-})
-
-onMounted(() => {
-
 })
 
 </script>

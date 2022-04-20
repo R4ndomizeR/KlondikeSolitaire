@@ -35,25 +35,24 @@
   <div
     :class="getClassesList"
     :draggable="props.isDraggable"
-    :style="game.meth.getCardImageStyle(props.cardData)"
+    :style="getCardImageStyle(props.cardData)"
     @drag="draggable.meth.handlerDrag($event)"
     @dragend="draggable.meth.handlerEndDrag($event)"
     @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData)"
-    @mousedown="draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData)"
+    @mousedown="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData) : null"
   >
   </div>
 </template>
 
 <script  setup>
+import { computed } from '@vue/reactivity'
 import game from '@/store/game'
 import draggable from '@/store/draggable'
-import { onMounted } from 'vue'
-import { computed } from '@vue/reactivity'
 
 const props = defineProps({
   isDraggable: {
     type: Boolean,
-    default: true
+    default: false
   },
   isCollapsed: {
     type: Boolean,
@@ -74,18 +73,39 @@ const props = defineProps({
       return {
         suit: 0, // масть: 1..4
         rank: 0, // достоинство: 1..13
-        opened: false,
+        closed: true,
         hidden: false,
       }
     }
   }
 })
 
+const getCardImage = (card) => {
+  /*
+    Clubs - Трефы (ч)
+    Diamonds - Бубны (к)
+    Spades - Пики (ч)
+    Hearts - Червы (к)
+  */
+  const suits = ['c', 'd', 's', 'h']
+
+  if (!card?.opened) return new URL(`../assets/cards/back.png`, import.meta.url).href
+
+  return new URL(`../assets/cards/${card.rank}${suits[card.suit - 1]}.png`, import.meta.url).href
+}
+
+const getCardImageStyle = (card) => {
+  const url = getCardImage(card)
+
+  return `background: url(${url}); background-size: cover;`
+}
+
 const getClassesList = computed(() => {
   return [
+    'card',
     props.cardData.hidden ? 'hidden' : '',
-    props.cardData.opened ? '' : 'closed',
-    props.isCollapsed ? 'collapsed' : '', 'card'
+    props.cardData.closed ? 'closed' : '',
+    props.isCollapsed ? 'collapsed' : '',
   ]
 })
 </script>

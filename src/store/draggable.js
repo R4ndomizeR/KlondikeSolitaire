@@ -10,7 +10,6 @@ const state = reactive({
 
   dragStack: [],
   dragElement: null,
-
 })
 
 const meth = {
@@ -71,7 +70,6 @@ const meth = {
     // event.dataTransfer.setDragImage(state.img, 0, 0)
     // console.log(event.dataTransfer)
   },
-
   handlerDrag(event) {
     // if (event.pageX === state.pageX && event.pageY === state.pageY) return
 
@@ -81,7 +79,6 @@ const meth = {
     // console.log(state.pageX, state.pageY)
     // console.log(state.pageX, state.pageY)
   },
-
   handlerEndDrag(event, data) {
     console.log('endDrag')
     event.target.style.opacity = '1'
@@ -99,8 +96,6 @@ const meth = {
     //   state.dragImage = null
     // }
   },
-
-
   handlerMouseDown(event, zoneData, cardData) {
     console.log('createDragGhost')
 
@@ -154,12 +149,112 @@ const meth = {
     // document.body.appendChild(state.dragImage)
     // }
   },
+  // handlerMouseUp(zoneData, cardData) {
+  //   console.log('deleteDragGhost')
+  //   state.dragStack.length = 0
+  // },
 
-  handlerMouseUp(zoneData, cardData) {
-    console.log('deleteDragGhost')
-    state.dragStack.length = 0
+  handleDropZone(event, data) {
+    console.log('onDrop', event, data)
+
+    const cardData = JSON.parse(event.dataTransfer.getData('card'))
+    const zoneData = JSON.parse(event.dataTransfer.getData('zone'))
+
+    // const item = this.items.find(item => item.id == itemID)
+    // item.list = list
+    if (data.area === 'table') {
+      const zoneLength = state.tableStack[data.areaID].length
+
+      if (zoneLength === 0) {
+        if (cardData.rank === 13) {
+          state.tableStack[data.areaID].push(cardData)
+          meth.deleteFromZone(zoneData, cardData)
+
+          if (state.dragData) {
+            state.dragData.forEach((item) => {
+              state.tableStack[data.areaID].push(item)
+              meth.deleteFromZone(zoneData, item)
+            })
+          }
+
+          console.log('onDrop:item', cardData)
+        }
+      }
+      else {
+        const lastItem = state.tableStack[data.areaID][zoneLength - 1]
+
+        if (!meth.checkSuitCompat(lastItem.suit, cardData.suit)) return
+
+        if (lastItem.rank === cardData.rank + 1) {
+          state.tableStack[data.areaID].push(cardData)
+          meth.deleteFromZone(zoneData, cardData)
+
+          if (state.dragData) {
+            state.dragData.forEach((item) => {
+              state.tableStack[data.areaID].push(item)
+              meth.deleteFromZone(zoneData, item)
+            })
+          }
+
+          console.log('onDrop:item', cardData)
+        }
+      }
+    }
+
+
+    if (data.area === 'finish') {
+      const zoneLength = state.finishStack[data.areaID].length
+
+      if (zoneLength === 0) {
+
+        if (cardData.rank === 1) {
+          state.finishStack[data.areaID].push(cardData)
+          meth.deleteFromZone(zoneData, cardData)
+          console.log('onDrop:item', cardData)
+        }
+
+      }
+      else {
+        const lastItem = state.finishStack[data.areaID][zoneLength - 1]
+
+        if (lastItem.suit !== cardData.suit) return
+
+        if (lastItem.rank === cardData.rank - 1) {
+          state.finishStack[data.areaID].push(cardData)
+          meth.deleteFromZone(zoneData, cardData)
+          console.log('onDrop:item', cardData)
+        }
+      }
+    }
+
+    meth.checkEnd()
   },
+  deleteFromZone: (zoneData, cardData) => {
+    if (zoneData.zone === 'table') {
+      const index = state.tableStack[zoneData.zoneID].findIndex((item) => item.suit === cardData.suit && item.rank === cardData.rank)
+      state.tableStack[zoneData.zoneID].splice(index, 1)
 
+      const newLength = state.tableStack[zoneData.zoneID].length
+
+      if (newLength) state.tableStack[zoneData.zoneID][newLength - 1].opened = true
+    }
+
+    if (zoneData.zone === 'finish') {
+      const index = state.finishStack[zoneData.zoneID].findIndex((item) => item.suit === cardData.suit && item.rank === cardData.rank)
+
+      state.finishStack[zoneData.zoneID].splice(index, 1)
+
+      // const newLength = state.finishStack[zoneData.zoneID].length
+
+      // if (newLength) state.finishStack[zoneData.zoneID][newLength - 1].opened = true
+    }
+    if (zoneData.zone === 'deck') {
+      state.deckStack.splice(state.deckPosition, 1)
+      if (state.deckPosition >= state.deckStack.length) state.deckPosition = state.deckStack.length - 1
+      // meth.nextCard()
+    }
+
+  },
 }
 
 

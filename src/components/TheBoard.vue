@@ -39,6 +39,13 @@
   gap: $gap;
 }
 
+.card-stack {
+  position: relative;
+  width: $card-w;
+
+  // margin-left: 10px;
+}
+
 
 .deck-card {
   display: flex;
@@ -88,20 +95,31 @@
 
       <div class="deck-table">
         <div class="card-stack">
-          <div class="deck-card" @click="meth.nextCard" :style="meth.getCardImageStyle({ opened: false })">
-          </div>
+          <Card class="deck-card" @click="meth.nextCard" />
         </div>
 
         <div class="card-stack">
-          <Card v-if="state.deckStack.length" :key="meth.getKey(state.deckStack[state.deckPosition])"
-            :card-data="state.deckStack[state.deckPosition]" :is-draggable="true" :is-droppable="false"
-            zone-name="deck" />
+          <Card
+            v-if="state.deckStack.length"
+            :key="meth.getKey(state.deckStack[state.deckPosition])"
+            :card-data="state.deckStack[state.deckPosition]"
+            :is-draggable="true"
+            :is-droppable="false"
+            :zone-data="{ name:'deck' }"
+          />
         </div>
       </div>
 
       <div class="finish-table">
-        <StackCards v-for="(stack, idx) in state.finishStack" :key="idx" :is-draggable="true" :is-droppable="true"
-          :is-collapsed="true" :stack-data="stack" :zone-id="idx" zone-name="finish" />
+        <StackCards
+          v-for="(stack, idx) in state.finishStack"
+          :key="idx"
+          :is-collapsed="true"
+          :is-draggable="true"
+          :is-droppable="true"
+          :stack-data="stack"
+          :zone-data="{ name:'finish', id: idx }"
+        />
       </div>
 
     </div>
@@ -109,14 +127,24 @@
     <div class="board-bottom">
 
       <div class="stacks-table">
-        <StackCards v-for="(stack, idx) in state.tableStack" :key="idx" :is-draggable="true" :is-droppable="true"
-          :stack-data="stack" :zone-id="idx" zone-name="table" />
+        <StackCards
+          v-for="(stack, idx) in state.tableStack"
+          :key="idx"
+          :is-draggable="true"
+          :is-droppable="true"
+          :stack-data="stack"
+          :zone-data="{ name:'table', id: idx }"
+        />
       </div>
 
     </div>
 
     <div class="board-drag" ref="drag">
-      <StackCards v-for="(stack, idx) in draggable.state.dragStack" :key="idx" :stack-data="stack" />
+      <StackCards
+        v-for="(stack, idx) in draggable.state.dragStack"
+        :key="idx"
+        :stack-data="stack"
+      />
     </div>
 
   </div>
