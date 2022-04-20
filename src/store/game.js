@@ -8,115 +8,11 @@ const state = reactive({
   tableStack: [[], [], [], [], [], [], []],
 
   deckPosition: 0,
-
-  dragImage: null,
-  dragData: null
 })
 
 const meth = {
-
   getKey(card) {
     return `${card?.rank}-${card?.suit}`
-  },
-
-  createGhost(zoneData, cardData) {
-
-    if (zoneData.zone !== 'table') return
-    const stackLength = state.tableStack[zoneData.zoneID].length
-    const position = state.tableStack[zoneData.zoneID].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-
-    if (position !== stackLength - 1) {
-      console.log('stackLength', stackLength)
-      console.log('position', position)
-
-      const stack = state.tableStack[zoneData.zoneID].slice(position + 1, stackLength)
-      console.log('stack', stack)
-
-      state.dragImage = document.createElement("div")
-      state.dragImage.id = "drag-stack"
-      state.dragImage.classList.add("drag-stack")
-      state.dragImage.style.position = "absolute"
-      state.dragImage.style.top = "-1000px"
-
-      const tCard = document.createElement("div")
-      tCard.classList.add("card-stack")
-      tCard.style = meth.getCardImageStyle(cardData)
-      state.dragImage.appendChild(tCard)
-
-      stack.forEach((item) => {
-        const tCard = document.createElement("div")
-        tCard.classList.add("card-stack")
-        tCard.style = meth.getCardImageStyle(item)
-        state.dragImage.appendChild(tCard)
-      })
-
-      document.body.appendChild(state.dragImage)
-    }
-  },
-
-  startDrag(event, zoneData, cardData) {
-    console.log('startDrag', event, zoneData, cardData)
-
-    if (!cardData.opened) {
-      event.preventDefault()
-      return
-    }
-
-    if (zoneData.zone === 'table') {
-      const stackLength = state.tableStack[zoneData.zoneID].length
-      const position = state.tableStack[zoneData.zoneID].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-
-      if (position !== stackLength - 1) {
-        console.log('stackLength', stackLength)
-        console.log('position', position)
-
-        const stack = state.tableStack[zoneData.zoneID].slice(position + 1, stackLength)
-        // console.log(stack)
-
-        state.dragData = [...stack]
-
-        stack.forEach(item => {
-          item.hidden = true // TODO: hide card
-        })
-
-        // event.dataTransfer.setData('nestedCardData', JSON.stringify(stack))
-
-        event.dataTransfer.setDragImage(state.dragImage, event.offsetX, event.offsetY)
-      }
-
-    }
-
-    event.dataTransfer.dropEffect = 'move'
-    event.dataTransfer.effectAllowed = 'move'
-
-    event.dataTransfer.setData('card', JSON.stringify(cardData))
-    event.dataTransfer.setData('zone', JSON.stringify(zoneData))
-
-    event.target.style.opacity = '0.01'
-
-    // event.target.style.opacity = '1'
-    // let img = new Image()
-    // img.src = meth.getCardImage(cardData)
-    // event.dataTransfer.setDragImage(state.img, 0, 0)
-    // console.log(event.dataTransfer)
-  },
-
-  endDrag(event, data) {
-    // console.log('endDrag')
-    event.target.style.opacity = '1'
-
-    if (state.dragData) {
-      state.dragData.forEach(item => {
-        item.hidden = false
-      })
-      state.dragData = null
-    }
-
-    const ghost = document.getElementById("drag-stack")
-    if (ghost) {
-      ghost.remove()
-      state.dragImage = null
-    }
   },
 
   onDropZone(event, data) {
@@ -250,14 +146,6 @@ const meth = {
   },
 
   checkTableCompat: (a, b) => {
-    // if (a === 1 || a === 2) {
-    //   if (b === 3 || b === 4) return true
-    // }
-
-    // if (b === 1 || b === 2) {
-    //   if (a === 3 || a === 4) return true
-    // }
-
     return a % 2 !== b % 2
   },
 
@@ -339,21 +227,16 @@ const meth = {
     }, 3000)
   }
 
-  // popCardFromDeck: () => {
-  //   // state.deckPosition = state.deckStack.length - 2
-  //   return state.deckStack.pop()
-  // },
+  /*     testFillFinishTable() {
+        for (let i = 0; i < state.finishStack.length; i++) {
+          state.finishStack[i].push({
+            suit: i + 1, // масть: 1..4
+            rank: 1, // достоинство: 1..13
+            opened: true,
+          })
 
-  //   testFillFinishTable() {
-  //     for (let i = 0; i < state.finishStack.length; i++) {
-  //       state.finishStack[i].push({
-  //         suit: i + 1, // масть: 1..4
-  //         rank: 1, // достоинство: 1..13
-  //         opened: true,
-  //       })
-
-  //     }
-  //   },
+        }
+      }, */
 }
 
 export default {

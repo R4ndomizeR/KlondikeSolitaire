@@ -8,7 +8,7 @@
   justify-content: space-between;
 }
 
-.board-bottom{
+.board-bottom {
   margin-top: 30px;
 }
 
@@ -47,23 +47,34 @@
   height: $card-h;
 
   border-radius: 6px;
+
+  &:hover {
+    // box-shadow: 0px 0px 6px 3px rgba(251, 255, 36, 0.7);
+    box-shadow: 0px 0px 6px 4px rgba(251, 255, 36, 0.7);
+    outline: 1px solid rgba(0, 0, 0, 0.7);
+  }
 }
 
-.drag-stack {
-  width: $card-w;
+.board-drag {
+  position: absolute;
+  top: -1000px;
 
-  .card-stack {
-    display: flex;
-
+  .drag-stack {
     width: $card-w;
-    height: $card-h;
 
-    border-radius: 6px;
+    .drag-card {
+      display: flex;
 
-    @for $i from 1 through 13 {
-      &:not(:first-child):nth-child(#{$i}) {
-        top: #{($i - 1) * 20}px;
-        position: absolute;
+      width: $card-w;
+      height: $card-h;
+
+      border-radius: 6px;
+
+      @for $i from 1 through 13 {
+        &:not(:first-child):nth-child(#{$i}) {
+          top: #{($i - 1) * 20}px;
+          position: absolute;
+        }
       }
     }
   }
@@ -82,28 +93,15 @@
         </div>
 
         <div class="card-stack">
-          <Card
-            v-if="state.deckStack.length"
-            :key="meth.getKey(state.deckStack[state.deckPosition])"
-            :card-data="state.deckStack[state.deckPosition]"
-            :is-draggable="true"
-            :is-droppable="false"
-            zone-name="deck"
-          />
+          <Card v-if="state.deckStack.length" :key="meth.getKey(state.deckStack[state.deckPosition])"
+            :card-data="state.deckStack[state.deckPosition]" :is-draggable="true" :is-droppable="false"
+            zone-name="deck" />
         </div>
       </div>
 
       <div class="finish-table">
-        <StackCards
-          v-for="(stack, idx) in state.finishStack"
-          :key="idx"
-          :is-draggable="true"
-          :is-droppable="true"
-          :is-collapsed="true"
-          :stack-data="stack"
-          :zone-id="idx"
-          zone-name="finish"
-        />
+        <StackCards v-for="(stack, idx) in state.finishStack" :key="idx" :is-draggable="true" :is-droppable="true"
+          :is-collapsed="true" :stack-data="stack" :zone-id="idx" zone-name="finish" />
       </div>
 
     </div>
@@ -111,29 +109,35 @@
     <div class="board-bottom">
 
       <div class="stacks-table">
-        <StackCards
-          v-for="(stack, idx) in state.tableStack"
-          :key="idx"
-          :is-draggable="true"
-          :is-droppable="true"
-          :stack-data="stack"
-          :zone-id="idx"
-          zone-name="table"
-        />
+        <StackCards v-for="(stack, idx) in state.tableStack" :key="idx" :is-draggable="true" :is-droppable="true"
+          :stack-data="stack" :zone-id="idx" zone-name="table" />
       </div>
 
+    </div>
+
+    <div class="board-drag" ref="drag">
+      <StackCards v-for="(stack, idx) in draggable.state.dragStack" :key="idx" :stack-data="stack" />
     </div>
 
   </div>
 </template>
 
 <script  setup>
-import { onMounted } from 'vue'
+import { onMounted, ref, watchEffect } from 'vue'
 import game from '@/store/game'
+import draggable from '@/store/draggable'
 import StackCards from './StackCards.vue'
 import Card from './Card.vue'
 
 const { state, meth } = game
+
+const drag = ref(null)
+
+watchEffect(() => {
+  draggable.meth.setDragElement(drag.value)
+}, {
+  flush: 'post'
+})
 
 onMounted(() => {
   meth.init()

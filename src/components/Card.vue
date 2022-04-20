@@ -32,17 +32,23 @@
 </style>
 
 <template>
-  <div :class="[props.cardData.hidden ? 'hidden' :'', props.cardData.opened ? '' : 'closed', props.isCollapsed ? 'collapsed' : '', 'card']"
-    :draggable="props.isDraggable" :style="meth.getCardImageStyle(props.cardData)" @dragend="meth.endDrag($event)"
-    @dragstart="meth.startDrag($event, { zone: props.zoneName, zoneID: props.zoneId }, props.cardData)"
-    @mousedown="meth.createGhost({ zone: props.zoneName, zoneID: props.zoneId }, props.cardData)">
+  <div
+    :class="getClassesList"
+    :draggable="props.isDraggable"
+    :style="game.meth.getCardImageStyle(props.cardData)"
+    @drag="draggable.meth.handlerDrag($event)"
+    @dragend="draggable.meth.handlerEndDrag($event)"
+    @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData)"
+    @mousedown="draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData)"
+  >
   </div>
 </template>
 
 <script  setup>
 import game from '@/store/game'
-
-const { state, meth } = game
+import draggable from '@/store/draggable'
+import { onMounted } from 'vue'
+import { computed } from '@vue/reactivity'
 
 const props = defineProps({
   isDraggable: {
@@ -53,13 +59,14 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  zoneName: {
-    type: String,
-    default: ''
-  },
-  zoneId: {
-    type: Number,
-    default: -1
+  zoneData: {
+    type: Object,
+    default: () => {
+      return {
+        name: '',
+        id: -1
+      }
+    }
   },
   cardData: {
     type: Object,
@@ -72,5 +79,13 @@ const props = defineProps({
       }
     }
   }
+})
+
+const getClassesList = computed(() => {
+  return [
+    props.cardData.hidden ? 'hidden' : '',
+    props.cardData.opened ? '' : 'closed',
+    props.isCollapsed ? 'collapsed' : '', 'card'
+  ]
 })
 </script>
