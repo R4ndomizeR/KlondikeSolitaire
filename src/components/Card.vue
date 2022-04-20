@@ -89,7 +89,7 @@ const getCardImage = (card) => {
   */
   const suits = ['c', 'd', 's', 'h']
 
-  if (!card?.opened) return new URL(`../assets/cards/back.png`, import.meta.url).href
+  if (card?.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
 
   return new URL(`../assets/cards/${card.rank}${suits[card.suit - 1]}.png`, import.meta.url).href
 }

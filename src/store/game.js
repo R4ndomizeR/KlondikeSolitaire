@@ -11,19 +11,8 @@ const state = reactive({
 })
 
 const meth = {
-  getKey(card) {
-    return `${card?.rank}-${card?.suit}`
-  },
-  nextCard: () => {
-    if (state.deckPosition === state.deckStack.length - 1) state.deckPosition = 0
-    else ++state.deckPosition
-
-    state.deckStack[state.deckPosition].opened = true
-  },
-  checkSuitCompat: (a, b) => {
-    return a % 2 !== b % 2
-  },
-  resetData: () => {
+  // #region game state
+  resetState: () => {
     state.isReady = false
 
     state.deckPosition = 0
@@ -31,8 +20,7 @@ const meth = {
     state.finishStack = [[], [], [], []]
     state.tableStack = [[], [], [], [], [], [], []]
   },
-  init: () => {
-
+  initState: () => {
     meth.filldeckStack()
     // console.log(state.deckStack)
 
@@ -47,13 +35,29 @@ const meth = {
 
     state.isReady = true
   },
+  checkEnd: () => {
+    const result = state.finishStack.every(
+      stack => stack.length === 13
+    )
+
+    if (!result) return
+
+    console.log('YOU_WIN')
+    alert('YOU_WIN')
+
+    setTimeout(() => {
+      meth.resetState()
+      meth.initState()
+    }, 3000)
+  },
+
   filldeckStack: () => {
     for (let s = 1; s <= 4; s++) {
       for (let r = 1; r <= 13; r++) {
         state.deckStack.push({
           suit: s, // масть: 1..4
           rank: r, // достоинство: 1..13
-          opened: true,
+          closed: true,
           hidden: false,
         })
       }
@@ -74,41 +78,44 @@ const meth = {
         // console.log(i, k)
         const card = state.deckStack.pop()
 
-        card.opened = (k === i)
+        card.closed = !(k === i)
 
         state.tableStack[i].push(card)
       }
     }
 
     state.deckPosition = state.deckStack.length - 1
-    state.deckStack[state.deckPosition].opened = true
+    state.deckStack[state.deckPosition].closed = false
   },
-  checkEnd: () => {
-    const result = state.finishStack.every(
-      stack => stack.length === 13
-    )
+  //#endregion game state
 
-    if (!result) return
+  // #region game helpers
+  getKey(cardData) {
+    return `${cardData?.rank}-${cardData?.suit}`
+  },
+  checkSuitCompat: (a, b) => {
+    return a % 2 !== b % 2
+  },
+  getIndexFromCard: (zoneData, cardData) => {
+    let cardIndex = null
 
-    console.log('YOU_WIN')
-    alert('YOU_WIN')
+    if (zoneData.name === 'table') {
+      cardIndex = state.tableStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
+    }
 
-    setTimeout(() => {
-      meth.resetData()
-      meth.init()
-    }, 3000)
-  }
+    else if (zoneData.name === 'finish') {
+      cardIndex = state.finishStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
+    }
 
-  /*     testFillFinishTable() {
-        for (let i = 0; i < state.finishStack.length; i++) {
-          state.finishStack[i].push({
-            suit: i + 1, // масть: 1..4
-            rank: 1, // достоинство: 1..13
-            opened: true,
-          })
+    return cardIndex === -1 ? cardIndex : null
+  },
+  iterateNextDeckCard: () => {
+    if (state.deckPosition === state.deckStack.length - 1) state.deckPosition = 0
+    else ++state.deckPosition
 
-        }
-      }, */
+    state.deckStack[state.deckPosition].closed = false
+  },
+  // #endregion game helpers
 }
 
 export default {

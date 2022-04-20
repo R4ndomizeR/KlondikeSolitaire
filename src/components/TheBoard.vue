@@ -95,7 +95,7 @@
 
       <div class="deck-table">
         <div class="card-stack">
-          <Card class="deck-card" @click="meth.nextCard" />
+          <Card class="deck-card" @click="meth.iterateNextDeckCard" />
         </div>
 
         <div class="card-stack">
@@ -168,7 +168,7 @@ watchEffect(() => {
 })
 
 onMounted(() => {
-  meth.init()
+  meth.initState()
 })
 
 </script>
