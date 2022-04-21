@@ -40,6 +40,7 @@
     @dragend="draggable.meth.handlerEndDrag($event)"
     @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData, props.cardIndex)"
     @mousedown="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData, props.cardIndex) : null"
+    @mouseup="props.isDraggable ? draggable.meth.handlerMouseUp($event, props.zoneData, props.cardData, props.cardIndex) : null"
   >
   </div>
 </template>
@@ -47,6 +48,7 @@
 <script  setup>
 import { computed } from 'vue'
 import draggable from '@/store/draggable'
+import { useDebounceFn, useThrottleFn } from '@vueuse/core'
 
 const props = defineProps({
   isDraggable: {
@@ -83,6 +85,10 @@ const props = defineProps({
   }
 })
 
+// const throttleDrag = useThrottleFn((event) => {
+//   draggable.meth.handlerDrag(event)
+// }, 40)
+
 const getCardImage = computed(() => {
   /*
     Clubs - Трефы (ч)
@@ -102,9 +108,6 @@ const getCardImageStyle = computed(() => {
 })
 
 const getClassesList = computed(() => {
-  if(props.zoneData.name ==='zzz') {
-    console.log(props.zoneData, props.cardData)
-  }
   return [
     'card',
     props.cardData.hidden ? 'hidden' : '',

@@ -1,4 +1,6 @@
-import { markRaw, nextTick, reactive, readonly } from 'vue'
+
+import { useThrottleFn } from '@vueuse/core'
+import { markRaw, nextTick, reactive, readonly, computed } from 'vue'
 import game from './game'
 
 const state = reactive({
@@ -7,12 +9,16 @@ const state = reactive({
   shiftX: 0,
   shiftY: 0,
 
+  dragPos: {
+    x: 0,
+    y: 0
+  },
+
   dragZoneData: {
     name: '',
     id: -1
   },
   dragStack: [],
-  dragElement: null,
 
   emptyElement: markRaw(document.createElement("div"))
 })
@@ -21,32 +27,44 @@ const meth = {
   resetState() {
     state.isDragActive = false
 
-    // if (state.dragElement) {
-    //   state.dragElement.style.top = '-1000px'
-    // }
-
     state.shiftX = 0
     state.shiftY = 0
 
+    state.dragPos.x = 0
+    state.dragPos.y = 0
+
     state.dragStack.length = 0
+
     state.dragZoneData = {
       name: '',
       id: -1
     }
   },
-  setDragElement(elem) {
-    state.dragElement = elem
-  },
+
+  // getPositionStyle: computed(() => {
+  //   return `transform: translate(${state.dragPosX}px, ${state.dragPosY}px);`
+  //   // return `left:${state.dragPosX}px; top:${state.dragPosY}px;`
+  // }),
+
+  // handlerDrag: useThrottleFn((event) => {
+  //   meth.updateDragPosition(event.pageX, event.pageY)
+  // }, 40),
+
   updateDragPosition(pageX, pageY) {
-    // state.dragElement.style.left = '0'
-    // state.dragElement.style.top = '0'
+    const newPosX = pageX - state.shiftX
+    const newPosY = pageY - state.shiftY
 
-    // console.log(JSON.stringify(state.dragStack))
+    // if (newPosX === state.dragPos.x && newPosY === state.dragPos.y) return
 
-    state.dragElement.style.left = pageX - state.shiftX + 'px'
-    state.dragElement.style.top = pageY - state.shiftY + 'px'
+    // state.dragElement.style.left = pageX - state.shiftX + 'px'
+    // state.dragElement.style.top = pageY - state.shiftY + 'px'
+
+    state.dragPos.x = newPosX
+    state.dragPos.y = newPosY
   },
-
+  handlerMouseUp(event, zoneData, cardData, cardIndex) {
+    console.log(state.isDragActive)
+  },
   handlerMouseDown(event, zoneData, cardData, cardIndex) {
     if (cardData.closed) {
       event.preventDefault()
@@ -55,8 +73,11 @@ const meth = {
 
     console.log('handlerMouseDown', event, cardIndex, zoneData, cardData)
 
-    state.shiftX = event.offsetX //event.clientX - event.target.getBoundingClientRect().left
-    state.shiftY = event.offsetY //event.clientY - event.target.getBoundingClientRect().top
+    state.shiftX = event.offsetX
+    state.shiftY = event.offsetY
+
+    // state.shiftX = event.clientX - event.target.getBoundingClientRect().left
+    // state.shiftY = event.clientY - event.target.getBoundingClientRect().top
 
     let stack = []
 
@@ -66,41 +87,20 @@ const meth = {
       if (!game.meth.getCardFromIndex(zoneData, cardIndex).closed) {
         const _stack = game.state.stacks.table[zoneData.id].slice(cardIndex, stackLength)
 
-        // console.log('DRAG_STACK', _stack)
-
         _stack.forEach(card => {
-          // console.log('DRAG', card)
           stack.push(Object.assign({}, card))
-
-          // скрываем карту на столе
-          // game.meth.toggleCardHide(zoneData, card, true)
-        })
-
-        _stack.forEach(card => {
-          // console.log('DRAG', card)
-          // stack.push(Object.assign({}, card))
-
-          // скрываем карту на столе
-          game.meth.toggleCardHide(zoneData, card, true)
         })
       }
     }
     else if (zoneData.name === 'deck' || zoneData.name === 'finish') {
       stack.push(Object.assign({}, cardData))
-
-      // скрываем карту на столе
-      game.meth.toggleCardHide(zoneData, cardData, true)
     }
 
-    // state.dragStack.length = 0
     state.dragStack = JSON.parse(JSON.stringify(stack))
     state.dragZoneData = JSON.parse(JSON.stringify(zoneData))
 
     meth.updateDragPosition(event.pageX, event.pageY)
     state.isDragActive = true
-
-    // console.log('createDragGhost', 'dragStack', state.dragStack)
-    // console.log('createDragGhost', 'dragZoneData', state.dragZoneData)
   },
   handlerStartDrag(event, zoneData, cardData, cardIndex) {
     if (!state.isDragActive || cardData.closed) {
@@ -108,21 +108,23 @@ const meth = {
       return
     }
 
-    // console.log('startDrag', event, cardIndex, zoneData, cardData)
+    console.log('startDrag', event, cardIndex, zoneData, cardData)
 
-    event.dataTransfer.setData('cardIndex', cardIndex)
+    // event.dataTransfer.setData('cardIndex', cardIndex)
     event.dataTransfer.dropEffect = 'move'
     event.dataTransfer.effectAllowed = 'move'
-
-    // await nextTick()
-
     event.dataTransfer.setDragImage(state.emptyElement, event.offsetX, event.offsetY)
+
+    state.dragStack.forEach(card => {
+      // скрываем карту на столе
+      game.meth.toggleCardHide(zoneData, card, true)
+    })
   },
-  handlerDrag(event) {
+  handlerDrag: (event) => {
     meth.updateDragPosition(event.pageX, event.pageY)
   },
   handlerEndDrag(event) {
-    // console.log('handlerEndDrag', state.dragZoneData, state.dragStack)
+    console.log('handlerEndDrag', state.dragZoneData, state.dragStack)
 
     state.dragStack.forEach((card) => {
       game.meth.toggleCardHide(state.dragZoneData, card, false)
@@ -131,7 +133,7 @@ const meth = {
   },
 
   handleDropZone(event, zoneData) {
-    // console.log('handleDropZone', event, zoneData)
+    console.log('handleDropZone', event, zoneData)
 
     const zoneLength = game.meth.getStackLength(zoneData)
 
@@ -194,8 +196,7 @@ const meth = {
   },
 }
 
-
 export default {
-  state: state,
+  state: readonly(state),
   meth
 }

@@ -69,7 +69,8 @@
 .board-drag {
   pointer-events: none;
   position: fixed;
-  top: -1000px;
+  left: 0px;
+  top: 0px;
 
   .drag-stack {
     width: $card-w;
@@ -107,11 +108,11 @@
           <Card
             v-for="(card, idx) in state.stacks.deck[1]"
             :key="game.meth.getKey(card)"
+            :card-data="card"
+            :card-index="idx"
             :is-collapsed="true"
             :is-draggable="true"
             :is-droppable="false"
-            :card-data="card"
-            :card-index="idx"
             :zone-data="{ name: 'deck', id: 1 }"
           />
         </div>
@@ -146,43 +147,68 @@
 
     </div>
 
-    <div class="board-drag" ref="drag">
-      <!-- v-if="draggable.state.isDragActive" -->
-      <div class="drag-stack" >
+    <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragStyle">
+      <div class="drag-stack">
         <Card
-          class="drag-card"
           v-for="card in draggable.state.dragStack"
           :key="game.meth.getKey(card)"
           :card-data="card"
           :is-collapsed="false"
           :is-draggable="false"
           :is-droppable="false"
-          :zone-data="{name:'zzz', id:game.meth.getKey(card)}"
+          class="drag-card"
         />
-        <!-- draggable.state.dragZoneData -->
       </div>
-      <!-- <StackCards :stack-data="draggable.state.dragStack" /> -->
     </div>
 
   </div>
 </template>
 
 <script  setup>
-import { onMounted, ref, watchEffect } from 'vue'
-import game from '@/store/game'
-import draggable from '@/store/draggable'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
+import { watchThrottled } from '@vueuse/core'
 import StackCards from './StackCards.vue'
 import Card from './Card.vue'
 
+import game from '@/store/game'
+import draggable from '@/store/draggable'
+
 const { state, meth } = game
 
-const drag = ref(null)
 
-watchEffect(() => {
-  draggable.meth.setDragElement(drag.value)
-}, {
-  flush: 'post'
+const x = ref(0)
+const y = ref(0)
+
+watchThrottled(
+  draggable.state.dragPos,
+  (pos) => {
+    x.value = pos.x
+    y.value = pos.y
+  },
+  { throttle: 10 },
+)
+
+// watch(
+//   draggable.state.dragPos,
+//   (pos) => {
+//     // console.log(pos)
+//     x.value = pos.x
+//     y.value = pos.y
+//   }
+// )
+
+const dragStyle = computed(() => {
+  return `transform: translate(${x.value}px, ${y.value}px);`
+  // return `left:${x.value}px; top:${y.value}px;`
 })
+
+// const drag = ref(null)
+
+// watchEffect(() => {
+//   draggable.meth.setDragElement(drag.value)
+// }, {
+//   flush: 'post'
+// })
 
 onMounted(() => {
   meth.resetState()
