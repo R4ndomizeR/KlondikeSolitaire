@@ -3,11 +3,11 @@ import { reactive, readonly } from "vue"
 const state = reactive({
   isReady: false,
 
-  deckStack: [],
-  finishStack: [[], [], [], []],
-  tableStack: [[], [], [], [], [], [], []],
-
-  deckPosition: 0,
+  stacks: {
+    'deck': [[], []],
+    'finish': [[], [], [], []],
+    'table': [[], [], [], [], [], [], []],
+  }
 })
 
 const meth = {
@@ -15,30 +15,32 @@ const meth = {
   resetState: () => {
     state.isReady = false
 
-    state.deckPosition = 0
-    state.deckStack = []
-    state.finishStack = [[], [], [], []]
-    state.tableStack = [[], [], [], [], [], [], []]
+    state.stacks = {
+      'deck': [[], []],
+      'finish': [[], [], [], []],
+      'table': [[], [], [], [], [], [], []],
+    }
   },
   initState: () => {
-    meth.filldeckStack()
-    // console.log(state.deckStack)
+    meth.filldeck()
+    // console.log(state.deck)
 
-    meth.shuffledeckStack()
-    // console.log(state.deckStack)
+    meth.shuffledeck()
+    // console.log(state.deck)
 
     meth.fillTable()
-    console.log(state.deckStack)
-    console.log(state.tableStack)
+    console.log(state.stacks.deck)
+    console.log(state.stacks.table)
 
     // meth.testFillFinishTable()
 
     state.isReady = true
   },
   checkEnd: () => {
-    const result = state.finishStack.every(
+    const result = state.finish.every(
       stack => stack.length === 13
     )
+    //TODO: auto finish
 
     if (!result) return
 
@@ -51,10 +53,10 @@ const meth = {
     }, 3000)
   },
 
-  filldeckStack: () => {
+  filldeck: () => {
     for (let s = 1; s <= 4; s++) {
       for (let r = 1; r <= 13; r++) {
-        state.deckStack.push({
+        state.stacks.deck[0].push({
           suit: s, // масть: 1..4
           rank: r, // достоинство: 1..13
           closed: true,
@@ -63,70 +65,75 @@ const meth = {
       }
     }
   },
-  shuffledeckStack: () => {
+  shuffledeck: () => {
     let j, temp
-    for (let i = state.deckStack.length - 1; i > 0; i--) {
+    for (let i = state.stacks.deck[0].length - 1; i > 0; i--) {
       j = Math.floor(Math.random() * (i + 1))
-      temp = state.deckStack[j]
-      state.deckStack[j] = state.deckStack[i]
-      state.deckStack[i] = temp
+      temp = state.stacks.deck[0][j]
+      state.stacks.deck[0][j] = state.stacks.deck[0][i]
+      state.stacks.deck[0][i] = temp
     }
   },
   fillTable: () => {
     for (let i = 0; i <= 6; i++) {
       for (let k = 0; k <= i; k++) {
         // console.log(i, k)
-        const card = state.deckStack.pop()
+        const card = state.stacks.deck[0].pop()
 
         card.closed = !(k === i)
 
-        state.tableStack[i].push(card)
+        state.stacks.table[i].push(card)
       }
     }
 
-    state.deckPosition = state.deckStack.length - 1
-    state.deckStack[state.deckPosition].closed = false
+    // state.stacks.deck[0][state.deckPosition].closed = false
   },
   //#endregion game state
 
-  // #region game helpers
+  // #region game setters
+  popNextDeckCard: () => {
+    // if (state.deckPosition === state.deck.length - 1) state.deckPosition = 0
+    // else ++state.deckPosition
+
+    if (state.stacks['deck'][0].length === 0) {
+      state.stacks['deck'][1].filter((item) => {
+        state.stacks['deck'][0].push(item)
+      })
+    }
+    else {
+      const card = state.stacks['deck'][0].pop()
+      card.closed = false
+      console.log(card)
+      state.stacks['deck'][1].push(card)
+    }
+
+  },
+  // #endregion game setters
+
+  // #region game getters
   getKey(cardData) {
     return `${cardData?.rank}-${cardData?.suit}`
   },
   checkSuitCompat: (a, b) => {
     return a % 2 !== b % 2
   },
-  iterateNextDeckCard: () => {
-    if (state.deckPosition === state.deckStack.length - 1) state.deckPosition = 0
-    else ++state.deckPosition
-
-    state.deckStack[state.deckPosition].closed = false
-  },
-
   getIndexFromCard: (zoneData, cardData) => {
+    if (!zoneData.name.length) return
+    if (!zoneData.id < 0) return
+
     let cardIndex = null
 
-    if (zoneData.name === 'table') {
-      cardIndex = state.tableStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-    }
-    else if (zoneData.name === 'finish') {
-      cardIndex = state.finishStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-    }
+    cardIndex = state.stacks[zoneData.name][zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
 
     return cardIndex === -1 ? null : cardIndex
   },
   getCardFromIndex: (zoneData, index) => {
-    let card = null
+    if (!zoneData.name.length) return
+    if (!zoneData.id < 0) return
 
-    if (zoneData.name === 'table') {
-      card = state.tableStack[zoneData.id][index]
-    }
-    else if (zoneData.name === 'finish') {
-      card = state.finishStack[zoneData.id][index]
-    }
-    return card
+    return state.stacks[zoneData.name][zoneData.id][index]
   },
-  // #endregion game helpers
+  // #endregion game setters
 }
 
 export default {

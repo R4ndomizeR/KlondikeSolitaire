@@ -48,13 +48,14 @@
     </div>
 
     <Card
-      v-for="card in props.stackData"
+      v-for="(card, idx) in props.stackData"
       :key="game.meth.getKey(card)"
 
       :is-draggable="props.isDraggable"
       :is-collapsed="props.isCollapsed"
       :zone-data="props.zoneData"
       :card-data="card"
+      :card-index="idx"
     />
 
   </div>

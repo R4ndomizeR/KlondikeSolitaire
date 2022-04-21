@@ -35,18 +35,17 @@
   <div
     :class="getClassesList"
     :draggable="props.isDraggable"
-    :style="getCardImageStyle(props.cardData)"
+    :style="getCardImageStyle"
     @drag="draggable.meth.handlerDrag($event)"
     @dragend="draggable.meth.handlerEndDrag($event)"
-    @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData)"
-    @mousedown="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData) : null"
+    @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData, props.cardIndex)"
+    @mousedown="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData, props.cardIndex) : null"
   >
   </div>
 </template>
 
 <script  setup>
-import { computed } from '@vue/reactivity'
-import game from '@/store/game'
+import { computed } from 'vue'
 import draggable from '@/store/draggable'
 
 const props = defineProps({
@@ -57,6 +56,10 @@ const props = defineProps({
   isCollapsed: {
     type: Boolean,
     default: false
+  },
+  cardIndex: {
+    type: Number,
+    default: -1
   },
   zoneData: {
     type: Object,
@@ -80,7 +83,7 @@ const props = defineProps({
   }
 })
 
-const getCardImage = (card) => {
+const getCardImage = computed(() => {
   /*
     Clubs - Трефы (ч)
     Diamonds - Бубны (к)
@@ -89,16 +92,14 @@ const getCardImage = (card) => {
   */
   const suits = ['c', 'd', 's', 'h']
 
-  if (card?.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
+  if (props.cardData.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
 
-  return new URL(`../assets/cards/${card.rank}${suits[card.suit - 1]}.png`, import.meta.url).href
-}
+  return new URL(`../assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`, import.meta.url).href
+})
 
-const getCardImageStyle = (card) => {
-  const url = getCardImage(card)
-
-  return `background: url(${url}); background-size: cover;`
-}
+const getCardImageStyle = computed(() => {
+  return `background: url(${getCardImage.value}); background-size: cover;`
+})
 
 const getClassesList = computed(() => {
   return [

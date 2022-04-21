@@ -100,19 +100,33 @@
 
       <div class="deck-table">
         <div class="card-stack">
-          <Card class="deck-card" @click="meth.iterateNextDeckCard" />
+          <Card class="deck-card" @click="meth.popNextDeckCard()" />
         </div>
 
         <div class="card-stack">
-          <Card v-if="state.deckStack.length" :key="meth.getKey(state.deckStack[state.deckPosition])"
-            :card-data="state.deckStack[state.deckPosition]" :is-draggable="true" :is-droppable="false"
-            :zone-data="{ name: 'deck' }" />
+          <Card
+            v-for="(card, idx) in state.stacks.deck[1]"
+            :key="game.meth.getKey(card)"
+            :is-collapsed="true"
+            :is-draggable="true"
+            :is-droppable="false"
+            :card-data="card"
+            :card-index="idx"
+            :zone-data="{ name: 'deck', id: 1 }"
+          />
         </div>
       </div>
 
       <div class="finish-table">
-        <StackCards v-for="(stack, idx) in state.finishStack" :key="idx" :is-collapsed="true" :is-draggable="true"
-          :is-droppable="true" :stack-data="stack" :zone-data="{ name: 'finish', id: idx }" />
+        <StackCards
+          v-for="(stack, idx) in state.stacks.finish"
+          :key="idx"
+          :is-collapsed="true"
+          :is-draggable="true"
+          :is-droppable="true"
+          :stack-data="stack"
+          :zone-data="{ name: 'finish', id: idx }"
+        />
       </div>
 
     </div>
@@ -120,8 +134,14 @@
     <div class="board-bottom">
 
       <div class="stacks-table">
-        <StackCards v-for="(stack, idx) in state.tableStack" :key="idx" :is-draggable="true" :is-droppable="true"
-          :stack-data="stack" :zone-data="{ name: 'table', id: idx }" />
+        <StackCards
+          v-for="(stack, idx) in state.stacks.table"
+          :key="idx"
+          :is-draggable="true"
+          :is-droppable="true"
+          :stack-data="stack"
+          :zone-data="{ name: 'table', id: idx }"
+        />
       </div>
 
     </div>
@@ -161,7 +181,7 @@ watchEffect(() => {
 })
 
 onMounted(() => {
+  meth.resetState()
   meth.initState()
 })
-
 </script>

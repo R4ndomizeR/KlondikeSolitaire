@@ -22,7 +22,7 @@ const meth = {
     state.dragElement = elem
   },
 
-  handlerMouseDown(event, zoneData, cardData) {
+  handlerMouseDown(event, zoneData, cardData, cardIndex) {
 
     if (cardData.closed) {
       event.preventDefault()
@@ -37,14 +37,14 @@ const meth = {
     let stack = [cardData]
 
     if (zoneData.name === 'table') {
-      const stackLength = game.state.tableStack[zoneData.id].length
+      const stackLength = game.state.table[zoneData.id].length
       const position = game.meth.getIndexFromCard(zoneData, cardData)
 
       console.log('position', position)
 
       if (position !== null) {
-        if (!game.state.tableStack[zoneData.id][position].closed) {
-          const _stack = game.state.tableStack[zoneData.id].slice(position, stackLength)
+        if (!game.state.table[zoneData.id][position].closed) {
+          const _stack = game.state.table[zoneData.id].slice(position, stackLength)
 
           _stack.forEach(item => {
             stack.push(Object.assign({}, item))
@@ -64,7 +64,7 @@ const meth = {
     console.log('createDragGhost', 'dragZoneData', state.dragZoneData)
   },
 
-  handlerStartDrag(event, zoneData, cardData) {
+  handlerStartDrag(event, zoneData, cardData, cardIndex) {
     if (cardData.closed) {
       event.preventDefault()
       return
@@ -73,16 +73,14 @@ const meth = {
     console.log('startDrag', event, zoneData, cardData)
 
     if (zoneData.name === 'table') {
-
-
-      // const stackLength = game.state.tableStack[zoneData.id].length
-      // const position = game.state.tableStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
+      // const stackLength = game.state.table[zoneData.id].length
+      // const position = game.state.table[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
 
       // if (position !== stackLength - 1) {
       //   console.log('stackLength', stackLength)
       //   console.log('position', position)
 
-      //   const stack = game.state.tableStack[zoneData.id].slice(position + 1, stackLength)
+      //   const stack = game.state.table[zoneData.id].slice(position + 1, stackLength)
       //   // console.log(stack)
 
       //   state.dragData = [...stack]
@@ -138,10 +136,6 @@ const meth = {
     //   ghost.remove()
     //   state.dragImage = null
     // }
-
-
-
-
   },
 
   handleDropZone(event, zoneData) {
@@ -152,17 +146,21 @@ const meth = {
 
     if (zoneData?.name === 'table') {
 
-      const zoneLength = game.state.tableStack[zoneData.id].length
+      const zoneLength = game.state.table[zoneData.id].length
 
       if (zoneLength === 0) {
         if (state.dragStack[0].rank === 13) {
-          game.state.tableStack[zoneData.id].push(...state.dragStack)
+          state.dragStack.forEach((item) => {
+            item.hidden = false
+          })
+
+          game.state.table[zoneData.id].push(...state.dragStack)
 
           meth.deleteFromZone(state.dragZoneData, state.dragStack)
 
           // if (nestedCardData) {
           //   nestedCardData.forEach((item) => {
-          //     game.state.tableStack[zoneData.id].push(item)
+          //     game.state.table[zoneData.id].push(item)
           //     meth.deleteFromZone(zoneData, item)
           //   })
           // }
@@ -170,18 +168,18 @@ const meth = {
         }
       }
       else {
-        const lastItem = game.state.tableStack[zoneData.id][zoneLength - 1]
+        const lastItem = game.state.table[zoneData.id][zoneLength - 1]
 
         if (!game.meth.checkSuitCompat(lastItem.suit, state.dragStack[0].suit)) return
 
         if (lastItem.rank === state.dragStack[0].rank + 1) {
-          game.state.tableStack[zoneData.id].push(state.dragStack[0])
+          game.state.table[zoneData.id].push(state.dragStack[0])
 
           meth.deleteFromZone(state.dragZoneData, state.dragStack[0])
 
           // if (nestedCardData) {
           //   nestedCardData.forEach((item) => {
-          //     game.state.tableStack[zoneData.id].push(item)
+          //     game.state.table[zoneData.id].push(item)
           //     meth.deleteFromZone(zoneData, item)
           //   })
           // }
@@ -190,24 +188,45 @@ const meth = {
         }
       }
     }
+
+    if (zoneData?.name === 'finish') {
+      const zoneLength = game.state.finish[zoneData.id].length
+      if (zoneLength === 0) {
+        if (state.dragStack[0].rank === 1) {
+          game.state.finish[zoneData.id].push(state.dragStack[0])
+          meth.deleteFromZone(zoneData, state.dragStack[0])
+          console.log('onDrop:item', state.dragStack[0])
+        }
+      }
+      else {
+        const lastItem = game.state.finish[zoneData.id][zoneLength - 1]
+        if (lastItem.suit !== state.dragStack[0].suit) return
+        if (lastItem.rank === state.dragStack[0].rank - 1) {
+          game.state.finish[zoneData.id].push(state.dragStack[0])
+          meth.deleteFromZone(zoneData, state.dragStack[0])
+          console.log('onDrop:item', state.dragStack[0])
+        }
+      }
+    }
+    game.meth.checkEnd()
   },
   deleteFromZone: (zoneData, cardData) => {
     if (zoneData.name === 'table') {
       const index = game.meth.getIndexFromCard(zoneData, cardData)
 
-      game.state.tableStack[zoneData.id].splice(index, 1)
+      game.state.table[zoneData.id].splice(index, 1)
 
-      const newLength = game.state.tableStack[zoneData.id].length
-      if (newLength) game.state.tableStack[zoneData.id][newLength - 1].opened = true
+      const newLength = game.state.table[zoneData.id].length
+      if (newLength) game.state.table[zoneData.id][newLength - 1].opened = true
     }
     if (zoneData.name === 'finish') {
 
       const index = game.meth.getIndexFromCard(zoneData, cardData)
 
-      state.finishStack[zoneData.id].splice(index, 1)
+      state.finish[zoneData.id].splice(index, 1)
 
-      // const newLength = state.finishStack[zoneData.id].length
-      // if (newLength) state.finishStack[zoneData.id][newLength - 1].opened = true
+      // const newLength = state.finish[zoneData.id].length
+      // if (newLength) state.finish[zoneData.id][newLength - 1].opened = true
     }
     if (zoneData.name === 'deck') {
 
