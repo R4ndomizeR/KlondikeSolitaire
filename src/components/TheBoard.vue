@@ -147,15 +147,19 @@
     </div>
 
     <div class="board-drag" ref="drag">
-      <div class="card-stack">
+      <!-- v-if="draggable.state.isDragActive" -->
+      <div class="drag-stack" >
         <Card
+          class="drag-card"
           v-for="card in draggable.state.dragStack"
           :key="game.meth.getKey(card)"
           :card-data="card"
           :is-collapsed="false"
           :is-draggable="false"
-          :zone-data="draggable.state.dragZoneData"
+          :is-droppable="false"
+          :zone-data="{name:'zzz', id:game.meth.getKey(card)}"
         />
+        <!-- draggable.state.dragZoneData -->
       </div>
       <!-- <StackCards :stack-data="draggable.state.dragStack" /> -->
     </div>

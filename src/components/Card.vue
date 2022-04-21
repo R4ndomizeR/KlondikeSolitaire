@@ -102,6 +102,9 @@ const getCardImageStyle = computed(() => {
 })
 
 const getClassesList = computed(() => {
+  if(props.zoneData.name ==='zzz') {
+    console.log(props.zoneData, props.cardData)
+  }
   return [
     'card',
     props.cardData.hidden ? 'hidden' : '',

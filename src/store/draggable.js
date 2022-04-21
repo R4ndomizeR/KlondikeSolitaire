@@ -1,4 +1,4 @@
-import { nextTick, reactive, readonly } from 'vue'
+import { markRaw, nextTick, reactive, readonly } from 'vue'
 import game from './game'
 
 const state = reactive({
@@ -14,230 +14,184 @@ const state = reactive({
   dragStack: [],
   dragElement: null,
 
-  currentDrop: null
+  emptyElement: markRaw(document.createElement("div"))
 })
 
 const meth = {
-  setDragElement(elem) {
-    state.dragElement = elem
-  },
+  resetState() {
+    state.isDragActive = false
 
-  handlerMouseDown(event, zoneData, cardData, cardIndex) {
-
-    if (cardData.closed) {
-      event.preventDefault()
-      return
-    }
-
-    console.log('handlerMouseDown', event, zoneData, cardData)
-
-    state.shiftX = event.offsetX //event.clientX - event.target.getBoundingClientRect().left
-    state.shiftY = event.offsetY //event.clientY - event.target.getBoundingClientRect().top
-
-    let stack = [cardData]
-
-    if (zoneData.name === 'table') {
-      const stackLength = game.state.table[zoneData.id].length
-      const position = game.meth.getIndexFromCard(zoneData, cardData)
-
-      console.log('position', position)
-
-      if (position !== null) {
-        if (!game.state.table[zoneData.id][position].closed) {
-          const _stack = game.state.table[zoneData.id].slice(position, stackLength)
-
-          _stack.forEach(item => {
-            stack.push(Object.assign({}, item))
-            item.hidden = true
-          })
-
-        }
-      }
-    }
-
-    state.dragZoneData = { ...zoneData }
-
-    state.dragStack.length = 0
-    state.dragStack = JSON.parse(JSON.stringify(stack))
-
-    console.log('createDragGhost', 'dragStack', state.dragStack)
-    console.log('createDragGhost', 'dragZoneData', state.dragZoneData)
-  },
-
-  handlerStartDrag(event, zoneData, cardData, cardIndex) {
-    if (cardData.closed) {
-      event.preventDefault()
-      return
-    }
-
-    console.log('startDrag', event, zoneData, cardData)
-
-    if (zoneData.name === 'table') {
-      // const stackLength = game.state.table[zoneData.id].length
-      // const position = game.state.table[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-
-      // if (position !== stackLength - 1) {
-      //   console.log('stackLength', stackLength)
-      //   console.log('position', position)
-
-      //   const stack = game.state.table[zoneData.id].slice(position + 1, stackLength)
-      //   // console.log(stack)
-
-      //   state.dragData = [...stack]
-
-      //   stack.forEach(item => {
-      //     item.hidden = true
-      //   })
-
-      //   // event.dataTransfer.setData('nestedCardData', JSON.stringify(stack))
-
-      //   event.dataTransfer.setDragImage(state.dragImage, event.offsetX, event.offsetY)
-      // }
-    }
-
-    event.dataTransfer.setData('plain/text', '1')
-
-    event.dataTransfer.dropEffect = 'move'
-    event.dataTransfer.effectAllowed = 'move'
-
-    // state.dragStack.forEach(item => {
-    //   item.hidden = true
-    // })
-
-    // await nextTick()
-
-    event.dataTransfer.setDragImage(document.createElement("div"), event.offsetX, event.offsetY)
-  },
-  handlerDrag(event) {
-    state.dragElement.style.left = event.pageX - state.shiftX + 'px'
-    state.dragElement.style.top = event.pageY - state.shiftY + 'px'
-  },
-  handlerEndDrag(event, zoneData) {
-    // event.target.style.opacity = '1'
-
-    if (state.dragElement) {
-      state.dragElement.style.top = '-1000px'
-    }
+    // if (state.dragElement) {
+    //   state.dragElement.style.top = '-1000px'
+    // }
 
     state.shiftX = 0
     state.shiftY = 0
 
     state.dragStack.length = 0
+    state.dragZoneData = {
+      name: '',
+      id: -1
+    }
+  },
+  setDragElement(elem) {
+    state.dragElement = elem
+  },
+  updateDragPosition(pageX, pageY) {
+    // state.dragElement.style.left = '0'
+    // state.dragElement.style.top = '0'
 
-    // if (state.dragStack) {
-    //   // state.dragData.forEach(item => {
-    //   //   item.hidden = false
-    //   // })
-    //   state.dragData = null
-    // }
+    // console.log(JSON.stringify(state.dragStack))
 
-    // const ghost = document.getElementById("drag-stack")
-    // if (ghost) {
-    //   ghost.remove()
-    //   state.dragImage = null
-    // }
+    state.dragElement.style.left = pageX - state.shiftX + 'px'
+    state.dragElement.style.top = pageY - state.shiftY + 'px'
+  },
+
+  handlerMouseDown(event, zoneData, cardData, cardIndex) {
+    if (cardData.closed) {
+      event.preventDefault()
+      return
+    }
+
+    console.log('handlerMouseDown', event, cardIndex, zoneData, cardData)
+
+    state.shiftX = event.offsetX //event.clientX - event.target.getBoundingClientRect().left
+    state.shiftY = event.offsetY //event.clientY - event.target.getBoundingClientRect().top
+
+    let stack = []
+
+    if (zoneData.name === 'table') {
+      const stackLength = game.meth.getStackLength(zoneData)
+
+      if (!game.meth.getCardFromIndex(zoneData, cardIndex).closed) {
+        const _stack = game.state.stacks.table[zoneData.id].slice(cardIndex, stackLength)
+
+        // console.log('DRAG_STACK', _stack)
+
+        _stack.forEach(card => {
+          // console.log('DRAG', card)
+          stack.push(Object.assign({}, card))
+
+          // скрываем карту на столе
+          // game.meth.toggleCardHide(zoneData, card, true)
+        })
+
+        _stack.forEach(card => {
+          // console.log('DRAG', card)
+          // stack.push(Object.assign({}, card))
+
+          // скрываем карту на столе
+          game.meth.toggleCardHide(zoneData, card, true)
+        })
+      }
+    }
+    else if (zoneData.name === 'deck' || zoneData.name === 'finish') {
+      stack.push(Object.assign({}, cardData))
+
+      // скрываем карту на столе
+      game.meth.toggleCardHide(zoneData, cardData, true)
+    }
+
+    // state.dragStack.length = 0
+    state.dragStack = JSON.parse(JSON.stringify(stack))
+    state.dragZoneData = JSON.parse(JSON.stringify(zoneData))
+
+    meth.updateDragPosition(event.pageX, event.pageY)
+    state.isDragActive = true
+
+    // console.log('createDragGhost', 'dragStack', state.dragStack)
+    // console.log('createDragGhost', 'dragZoneData', state.dragZoneData)
+  },
+  handlerStartDrag(event, zoneData, cardData, cardIndex) {
+    if (!state.isDragActive || cardData.closed) {
+      event.preventDefault()
+      return
+    }
+
+    // console.log('startDrag', event, cardIndex, zoneData, cardData)
+
+    event.dataTransfer.setData('cardIndex', cardIndex)
+    event.dataTransfer.dropEffect = 'move'
+    event.dataTransfer.effectAllowed = 'move'
+
+    // await nextTick()
+
+    event.dataTransfer.setDragImage(state.emptyElement, event.offsetX, event.offsetY)
+  },
+  handlerDrag(event) {
+    meth.updateDragPosition(event.pageX, event.pageY)
+  },
+  handlerEndDrag(event) {
+    // console.log('handlerEndDrag', state.dragZoneData, state.dragStack)
+
+    state.dragStack.forEach((card) => {
+      game.meth.toggleCardHide(state.dragZoneData, card, false)
+    })
+    meth.resetState()
   },
 
   handleDropZone(event, zoneData) {
-    console.log('handleDropZone', event, zoneData)
-    if (zoneData?.name?.length) {
-      console.log('handleDropZone')
-    }
+    // console.log('handleDropZone', event, zoneData)
 
-    if (zoneData?.name === 'table') {
+    const zoneLength = game.meth.getStackLength(zoneData)
 
-      const zoneLength = game.state.table[zoneData.id].length
+    if (zoneData.name === 'table') {
 
       if (zoneLength === 0) {
         if (state.dragStack[0].rank === 13) {
-          state.dragStack.forEach((item) => {
-            item.hidden = false
+
+          state.dragStack.forEach((card) => {
+            game.meth.pushCard(zoneData, card)
+            game.meth.deleteCard(state.dragZoneData, card)
           })
-
-          game.state.table[zoneData.id].push(...state.dragStack)
-
-          meth.deleteFromZone(state.dragZoneData, state.dragStack)
-
-          // if (nestedCardData) {
-          //   nestedCardData.forEach((item) => {
-          //     game.state.table[zoneData.id].push(item)
-          //     meth.deleteFromZone(zoneData, item)
-          //   })
-          // }
 
         }
       }
       else {
-        const lastItem = game.state.table[zoneData.id][zoneLength - 1]
+        const lastItem = game.meth.getCardFromIndex(zoneData, zoneLength - 1)
 
         if (!game.meth.checkSuitCompat(lastItem.suit, state.dragStack[0].suit)) return
 
         if (lastItem.rank === state.dragStack[0].rank + 1) {
-          game.state.table[zoneData.id].push(state.dragStack[0])
 
-          meth.deleteFromZone(state.dragZoneData, state.dragStack[0])
+          state.dragStack.forEach((card) => {
+            game.meth.pushCard(zoneData, card)
+            game.meth.deleteCard(state.dragZoneData, card)
+          })
 
-          // if (nestedCardData) {
-          //   nestedCardData.forEach((item) => {
-          //     game.state.table[zoneData.id].push(item)
-          //     meth.deleteFromZone(zoneData, item)
-          //   })
-          // }
-
-          // console.log('onDrop:item', cardData)
         }
       }
+
     }
 
-    if (zoneData?.name === 'finish') {
-      const zoneLength = game.state.finish[zoneData.id].length
+    if (zoneData.name === 'finish') {
+
+      if (state.dragStack.length > 1) return
+
       if (zoneLength === 0) {
         if (state.dragStack[0].rank === 1) {
-          game.state.finish[zoneData.id].push(state.dragStack[0])
-          meth.deleteFromZone(zoneData, state.dragStack[0])
-          console.log('onDrop:item', state.dragStack[0])
+
+          game.meth.pushCard(zoneData, state.dragStack[0])
+          game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
+
         }
       }
       else {
-        const lastItem = game.state.finish[zoneData.id][zoneLength - 1]
+        const lastItem = game.meth.getCardFromIndex(zoneData, zoneLength - 1)
+
         if (lastItem.suit !== state.dragStack[0].suit) return
+
         if (lastItem.rank === state.dragStack[0].rank - 1) {
-          game.state.finish[zoneData.id].push(state.dragStack[0])
-          meth.deleteFromZone(zoneData, state.dragStack[0])
-          console.log('onDrop:item', state.dragStack[0])
+
+          game.meth.pushCard(zoneData, state.dragStack[0])
+          game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
+
         }
       }
     }
+
     game.meth.checkEnd()
   },
-  deleteFromZone: (zoneData, cardData) => {
-    if (zoneData.name === 'table') {
-      const index = game.meth.getIndexFromCard(zoneData, cardData)
-
-      game.state.table[zoneData.id].splice(index, 1)
-
-      const newLength = game.state.table[zoneData.id].length
-      if (newLength) game.state.table[zoneData.id][newLength - 1].opened = true
-    }
-    if (zoneData.name === 'finish') {
-
-      const index = game.meth.getIndexFromCard(zoneData, cardData)
-
-      state.finish[zoneData.id].splice(index, 1)
-
-      // const newLength = state.finish[zoneData.id].length
-      // if (newLength) state.finish[zoneData.id][newLength - 1].opened = true
-    }
-    if (zoneData.name === 'deck') {
-
-      state.cardDeck.splice(state.deckPos, 1)
-
-      if (state.deckPos >= state.cardDeck.length) state.deckPos = state.cardDeck.length - 1
-
-      // meth.nextCard()
-    }
-  },
-
 }
 
 

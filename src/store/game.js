@@ -12,7 +12,7 @@ const state = reactive({
 
 const meth = {
   // #region game state
-  resetState: () => {
+  resetState() {
     state.isReady = false
 
     state.stacks = {
@@ -21,7 +21,7 @@ const meth = {
       'table': [[], [], [], [], [], [], []],
     }
   },
-  initState: () => {
+  initState() {
     meth.filldeck()
     // console.log(state.deck)
 
@@ -29,15 +29,15 @@ const meth = {
     // console.log(state.deck)
 
     meth.fillTable()
-    console.log(state.stacks.deck)
-    console.log(state.stacks.table)
+    // console.log(state.stacks.deck)
+    // console.log(state.stacks.table)
 
     // meth.testFillFinishTable()
 
     state.isReady = true
   },
-  checkEnd: () => {
-    const result = state.finish.every(
+  checkEnd() {
+    const result = state.stacks.finish.every(
       stack => stack.length === 13
     )
     //TODO: auto finish
@@ -53,7 +53,7 @@ const meth = {
     }, 3000)
   },
 
-  filldeck: () => {
+  filldeck() {
     for (let s = 1; s <= 4; s++) {
       for (let r = 1; r <= 13; r++) {
         state.stacks.deck[0].push({
@@ -65,7 +65,7 @@ const meth = {
       }
     }
   },
-  shuffledeck: () => {
+  shuffledeck() {
     let j, temp
     for (let i = state.stacks.deck[0].length - 1; i > 0; i--) {
       j = Math.floor(Math.random() * (i + 1))
@@ -74,7 +74,7 @@ const meth = {
       state.stacks.deck[0][i] = temp
     }
   },
-  fillTable: () => {
+  fillTable() {
     for (let i = 0; i <= 6; i++) {
       for (let k = 0; k <= i; k++) {
         // console.log(i, k)
@@ -91,7 +91,7 @@ const meth = {
   //#endregion game state
 
   // #region game setters
-  popNextDeckCard: () => {
+  popNextDeckCard() {
     // if (state.deckPosition === state.deck.length - 1) state.deckPosition = 0
     // else ++state.deckPosition
 
@@ -103,10 +103,45 @@ const meth = {
     else {
       const card = state.stacks['deck'][0].pop()
       card.closed = false
-      console.log(card)
+      // console.log(card)
       state.stacks['deck'][1].push(card)
     }
 
+  },
+
+  toggleCardHide(zoneData, cardData, isHidden) {
+    let cardIndex = meth.getIndexFromCard(zoneData, cardData)
+
+    if (cardIndex === null) return
+
+    // console.log('toggle', state.stacks[zoneData.name][zoneData.id][cardIndex])
+
+    state.stacks[zoneData.name][zoneData.id][cardIndex].hidden = isHidden
+  },
+
+  pushCard(zoneData, cardData) {
+    state.stacks[zoneData.name][zoneData.id].push(Object.assign({}, cardData))
+  },
+  // deleteCardArray: (zoneData, cardStack) => {
+  //   cardStack.forEach(card => {
+  //     const index = meth.getIndexFromCard(zoneData, card)
+  //     if (index !== -1) {
+  //       state.table.stacks[zoneData.name][zoneData.id].splice(index, 1)
+  //     }
+  //   })
+  //   state.stacks[zoneData.name][zoneData.id].push(Object.assign({}, cardData))
+  // },
+  deleteCard(zoneData, cardData) {
+    const index = meth.getIndexFromCard(zoneData, cardData)
+    if (index !== -1) {
+      state.stacks[zoneData.name][zoneData.id].splice(index, 1)
+    }
+
+    // FIXME: возможно будет открываться предпоследняя, но это не точно
+    if (zoneData.name === 'table') {
+      const newLength = state.stacks.table[zoneData.id].length
+      if (newLength) state.stacks.table[zoneData.id][newLength - 1].closed = false
+    }
   },
   // #endregion game setters
 
@@ -114,12 +149,15 @@ const meth = {
   getKey(cardData) {
     return `${cardData?.rank}-${cardData?.suit}`
   },
-  checkSuitCompat: (a, b) => {
+  getStackLength(zoneData) {
+    return state.stacks[zoneData.name][zoneData.id].length
+  },
+  checkSuitCompat(a, b) {
     return a % 2 !== b % 2
   },
-  getIndexFromCard: (zoneData, cardData) => {
+  getIndexFromCard(zoneData, cardData) {
     if (!zoneData.name.length) return
-    if (!zoneData.id < 0) return
+    if (zoneData.id < 0) return
 
     let cardIndex = null
 
@@ -127,16 +165,16 @@ const meth = {
 
     return cardIndex === -1 ? null : cardIndex
   },
-  getCardFromIndex: (zoneData, index) => {
+  getCardFromIndex(zoneData, index) {
     if (!zoneData.name.length) return
     if (!zoneData.id < 0) return
 
     return state.stacks[zoneData.name][zoneData.id][index]
-  },
+  }
   // #endregion game setters
 }
 
 export default {
-  state: state,
+  state: readonly(state),
   meth
 }
