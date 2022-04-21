@@ -96,29 +96,40 @@ const meth = {
   checkSuitCompat: (a, b) => {
     return a % 2 !== b % 2
   },
-  getIndexFromCard: (zoneData, cardData) => {
-    let cardIndex = null
-
-    if (zoneData.name === 'table') {
-      cardIndex = state.tableStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-    }
-
-    else if (zoneData.name === 'finish') {
-      cardIndex = state.finishStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
-    }
-
-    return cardIndex === -1 ? cardIndex : null
-  },
   iterateNextDeckCard: () => {
     if (state.deckPosition === state.deckStack.length - 1) state.deckPosition = 0
     else ++state.deckPosition
 
     state.deckStack[state.deckPosition].closed = false
   },
+
+  getIndexFromCard: (zoneData, cardData) => {
+    let cardIndex = null
+
+    if (zoneData.name === 'table') {
+      cardIndex = state.tableStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
+    }
+    else if (zoneData.name === 'finish') {
+      cardIndex = state.finishStack[zoneData.id].findIndex(item => item.suit === cardData.suit && item.rank === cardData.rank)
+    }
+
+    return cardIndex === -1 ? null : cardIndex
+  },
+  getCardFromIndex: (zoneData, index) => {
+    let card = null
+
+    if (zoneData.name === 'table') {
+      card = state.tableStack[zoneData.id][index]
+    }
+    else if (zoneData.name === 'finish') {
+      card = state.finishStack[zoneData.id][index]
+    }
+    return card
+  },
   // #endregion game helpers
 }
 
 export default {
-  state: readonly(state),
+  state: state,
   meth
 }

@@ -32,10 +32,11 @@
   <div
     @dragenter.prevent
     @dragover.prevent
-    @drop="draggable.meth.handleDropZone($event, props.zoneData)"
+    @drop="props.isDroppable ? draggable.meth.handleDropZone($event, props.zoneData) : null"
     class="card-stack"
   >
     <!-- <div
+      :class="[props.isDroppable ? 'droppable' : '', 'card-stack']"
       v-if="props.isDroppable"
       @dragenter.prevent
       @dragover.prevent

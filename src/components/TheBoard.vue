@@ -3,6 +3,10 @@
 //   pointer-events: none;
 // }
 
+.board {
+  // position: relative;
+}
+
 .board-top {
   display: flex;
   justify-content: space-between;
@@ -63,7 +67,8 @@
 }
 
 .board-drag {
-  position: absolute;
+  pointer-events: none;
+  position: fixed;
   top: -1000px;
 
   .drag-stack {
@@ -99,27 +104,15 @@
         </div>
 
         <div class="card-stack">
-          <Card
-            v-if="state.deckStack.length"
-            :key="meth.getKey(state.deckStack[state.deckPosition])"
-            :card-data="state.deckStack[state.deckPosition]"
-            :is-draggable="true"
-            :is-droppable="false"
-            :zone-data="{ name:'deck' }"
-          />
+          <Card v-if="state.deckStack.length" :key="meth.getKey(state.deckStack[state.deckPosition])"
+            :card-data="state.deckStack[state.deckPosition]" :is-draggable="true" :is-droppable="false"
+            :zone-data="{ name: 'deck' }" />
         </div>
       </div>
 
       <div class="finish-table">
-        <StackCards
-          v-for="(stack, idx) in state.finishStack"
-          :key="idx"
-          :is-collapsed="true"
-          :is-draggable="true"
-          :is-droppable="true"
-          :stack-data="stack"
-          :zone-data="{ name:'finish', id: idx }"
-        />
+        <StackCards v-for="(stack, idx) in state.finishStack" :key="idx" :is-collapsed="true" :is-draggable="true"
+          :is-droppable="true" :stack-data="stack" :zone-data="{ name: 'finish', id: idx }" />
       </div>
 
     </div>
@@ -127,24 +120,24 @@
     <div class="board-bottom">
 
       <div class="stacks-table">
-        <StackCards
-          v-for="(stack, idx) in state.tableStack"
-          :key="idx"
-          :is-draggable="true"
-          :is-droppable="true"
-          :stack-data="stack"
-          :zone-data="{ name:'table', id: idx }"
-        />
+        <StackCards v-for="(stack, idx) in state.tableStack" :key="idx" :is-draggable="true" :is-droppable="true"
+          :stack-data="stack" :zone-data="{ name: 'table', id: idx }" />
       </div>
 
     </div>
 
     <div class="board-drag" ref="drag">
-      <StackCards
-        v-for="(stack, idx) in draggable.state.dragStack"
-        :key="idx"
-        :stack-data="stack"
-      />
+      <div class="card-stack">
+        <Card
+          v-for="card in draggable.state.dragStack"
+          :key="game.meth.getKey(card)"
+          :card-data="card"
+          :is-collapsed="false"
+          :is-draggable="false"
+          :zone-data="draggable.state.dragZoneData"
+        />
+      </div>
+      <!-- <StackCards :stack-data="draggable.state.dragStack" /> -->
     </div>
 
   </div>
