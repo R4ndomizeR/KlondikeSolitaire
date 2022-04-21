@@ -147,7 +147,7 @@
 
     </div>
 
-    <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragStyle">
+    <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragPositionStyle">
       <div class="drag-stack">
         <Card
           v-for="card in draggable.state.dragStack"
@@ -166,7 +166,7 @@
 
 <script  setup>
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
-import { watchThrottled } from '@vueuse/core'
+// import { throttleFilter, watchThrottled } from '@vueuse/core'
 import StackCards from './StackCards.vue'
 import Card from './Card.vue'
 
@@ -175,18 +175,17 @@ import draggable from '@/store/draggable'
 
 const { state, meth } = game
 
+// const x = ref(0)
+// const y = ref(0)
 
-const x = ref(0)
-const y = ref(0)
-
-watchThrottled(
-  draggable.state.dragPos,
-  (pos) => {
-    x.value = pos.x
-    y.value = pos.y
-  },
-  { throttle: 10 },
-)
+// watchThrottled(
+//   draggable.state.dragPos,
+//   (pos) => {
+//     x.value = pos.x
+//     y.value = pos.y
+//   },
+//   { eventFilter: throttleFilter(10),},
+// )
 
 // watch(
 //   draggable.state.dragPos,
@@ -197,8 +196,9 @@ watchThrottled(
 //   }
 // )
 
-const dragStyle = computed(() => {
-  return `transform: translate(${x.value}px, ${y.value}px);`
+const dragPositionStyle = computed(() => {
+  return `transform: translate(${draggable.state.dragPos.x}px, ${draggable.state.dragPos.y}px);`
+  // return `transform: translate(${x.value}px, ${y.value}px);`
   // return `left:${x.value}px; top:${y.value}px;`
 })
 

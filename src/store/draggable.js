@@ -63,7 +63,8 @@ const meth = {
     state.dragPos.y = newPosY
   },
   handlerMouseUp(event, zoneData, cardData, cardIndex) {
-    console.log(state.isDragActive)
+    console.log('isDragActive', state.isDragActive)
+    meth.resetState()
   },
   handlerMouseDown(event, zoneData, cardData, cardIndex) {
     if (cardData.closed) {

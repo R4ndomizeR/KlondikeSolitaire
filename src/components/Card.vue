@@ -36,12 +36,13 @@
     :class="getClassesList"
     :draggable="props.isDraggable"
     :style="getCardImageStyle"
-    @drag="draggable.meth.handlerDrag($event)"
+    @drag="onDragHandle2"
     @dragend="draggable.meth.handlerEndDrag($event)"
     @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData, props.cardIndex)"
     @mousedown="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData, props.cardIndex) : null"
-    @mouseup="props.isDraggable ? draggable.meth.handlerMouseUp($event, props.zoneData, props.cardData, props.cardIndex) : null"
+    @mouseup="props.isDraggable ? draggable.meth.handlerMouseUp($event) : null"
   >
+  <!-- @drag="draggable.meth.handlerDrag($event)" -->
   </div>
 </template>
 
@@ -85,9 +86,13 @@ const props = defineProps({
   }
 })
 
-// const throttleDrag = useThrottleFn((event) => {
-//   draggable.meth.handlerDrag(event)
-// }, 40)
+const onDragHandle = (event) => {
+  draggable.meth.handlerDrag(event)
+}
+
+const onDragHandle2 = useThrottleFn((event) => {
+  draggable.meth.handlerDrag(event)
+}, 10)
 
 const getCardImage = computed(() => {
   /*
