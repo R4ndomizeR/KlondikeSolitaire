@@ -1,10 +1,6 @@
-<style lang="scss">
-// img {
-//   pointer-events: none;
-// }
-
+<style lang="scss" scoped>
 .board {
-  // position: relative;
+  position: relative;
 }
 
 .board-top {
@@ -13,15 +9,15 @@
 }
 
 .board-bottom {
-  margin-top: 30px;
+  margin-top: $stack-gap * 1.5;
 }
 
-
+// ------
 
 .deck-table {
   position: relative;
   display: flex;
-  gap: $gap;
+  gap: $stack-gap;
 }
 
 .finish-table {
@@ -29,7 +25,7 @@
   display: flex;
   flex-direction: row;
 
-  gap: $gap;
+  gap: $stack-gap;
 }
 
 .stacks-table {
@@ -40,57 +36,57 @@
   flex-direction: row;
   justify-content: center;
 
-  gap: $gap;
+  gap: $stack-gap;
 }
 
-.card-stack {
+// ------
+
+.deck-stack {
   position: relative;
-  width: $card-w;
-
-  // margin-left: 10px;
-}
-
-
-.deck-card {
-  display: flex;
-
   width: $card-w;
   height: $card-h;
 
-  border-radius: 6px;
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
 
   &:hover {
-    // box-shadow: 0px 0px 6px 3px rgba(251, 255, 36, 0.7);
     box-shadow: 0px 0px 6px 4px rgba(251, 255, 36, 0.7);
     outline: 1px solid rgba(0, 0, 0, 0.7);
+    border-radius: $card-radius;
   }
 }
+
+.deck-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+
+  transform: translate(-50%, -50%);
+
+
+	border: 10px solid #006203;
+  filter: drop-shadow(0 0 15px #00ff08bc);
+
+  // box-shadow: inset 0px 0px 20px 3px rgb(255 255 255 / 44%), 0px 0px 20px 3px rgb(255 255 255 / 44%);
+	border-radius: 50%;
+
+	width: 80px * $mult;
+	height: 80px * $mult;
+}
+
+.deck-card {
+  z-index: 1;
+}
+
+// ------
 
 .board-drag {
   pointer-events: none;
   position: fixed;
   left: 0px;
   top: 0px;
-
-  .drag-stack {
-    width: $card-w;
-
-    .drag-card {
-      display: flex;
-
-      width: $card-w;
-      height: $card-h;
-
-      border-radius: 6px;
-
-      @for $i from 1 through 13 {
-        &:not(:first-child):nth-child(#{$i}) {
-          top: #{($i - 1) * 20}px;
-          position: absolute;
-        }
-      }
-    }
-  }
 }
 </style>
 
@@ -100,11 +96,13 @@
     <div class="board-top">
 
       <div class="deck-table">
-        <div class="card-stack">
-          <Card class="deck-card" @click="meth.popNextDeckCard()" />
+
+        <div class="deck-stack" @click="meth.popNextDeckCard()">
+          <Card class="deck-card" v-if="state.stacks.deck[0].length" />
+          <div class="deck-circle"></div>
         </div>
 
-        <div class="card-stack">
+        <div>
           <Card
             v-for="(card, idx) in state.stacks.deck[1]"
             :key="game.meth.getKey(card)"
@@ -116,6 +114,7 @@
             :zone-data="{ name: 'deck', id: 1 }"
           />
         </div>
+
       </div>
 
       <div class="finish-table">
@@ -148,17 +147,12 @@
     </div>
 
     <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragPositionStyle">
-      <div class="drag-stack">
-        <Card
-          v-for="card in draggable.state.dragStack"
-          :key="game.meth.getKey(card)"
-          :card-data="card"
-          :is-collapsed="false"
-          :is-draggable="false"
-          :is-droppable="false"
-          class="drag-card"
-        />
-      </div>
+      <StackCards
+        :is-collapsed="false"
+        :is-draggable="false"
+        :is-droppable="false"
+        :stack-data="draggable.state.dragStack"
+      />
     </div>
 
   </div>
@@ -167,6 +161,7 @@
 <script  setup>
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 // import { throttleFilter, watchThrottled } from '@vueuse/core'
+
 import StackCards from './StackCards.vue'
 import Card from './Card.vue'
 

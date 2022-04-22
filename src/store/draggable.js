@@ -40,16 +40,13 @@ const meth = {
       id: -1
     }
   },
-
   // getPositionStyle: computed(() => {
   //   return `transform: translate(${state.dragPosX}px, ${state.dragPosY}px);`
   //   // return `left:${state.dragPosX}px; top:${state.dragPosY}px;`
   // }),
-
   // handlerDrag: useThrottleFn((event) => {
   //   meth.updateDragPosition(event.pageX, event.pageY)
   // }, 40),
-
   updateDragPosition(pageX, pageY) {
     const newPosX = pageX - state.shiftX
     const newPosY = pageY - state.shiftY
@@ -103,6 +100,19 @@ const meth = {
     meth.updateDragPosition(event.pageX, event.pageY)
     state.isDragActive = true
   },
+  handlerRightClick(event, zoneData, cardData, cardIndex) {
+    if (cardData.closed) return
+    if (game.meth.getStackLength(zoneData) - 1 !== cardIndex) return
+    if (zoneData.name === 'finish') return
+
+    console.log('handlerRightClick', cardData)
+
+    const zoneID = game.meth.getFinishZoneIdCompat(cardData)
+    if (zoneID === -1) return
+
+    game.meth.pushCard({ name: 'finish', id: zoneID}, cardData)
+    game.meth.deleteCard(zoneData, cardData)
+  },
   handlerStartDrag(event, zoneData, cardData, cardIndex) {
     if (!state.isDragActive || cardData.closed) {
       event.preventDefault()
@@ -132,7 +142,6 @@ const meth = {
     })
     meth.resetState()
   },
-
   handleDropZone(event, zoneData) {
     console.log('handleDropZone', event, zoneData)
 

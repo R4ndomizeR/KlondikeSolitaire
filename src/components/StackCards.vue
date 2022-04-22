@@ -1,30 +1,19 @@
 <style lang="scss" scoped>
 .card-stack {
   position: relative;
-  width: $card-w;
-
-  // margin-left: 10px;
-}
-
-.drag-zone {
-  display: block;
-  position: absolute;
-  width: $card-w;
-  height: $card-h;
-  top: 0;
-
-  // outline: 1px solid rgb(0 0 0 / 50%);
-  // border-radius: 6px;
-  // box-shadow: 0px 0px 20px 5px rgb(0 0 0 / 19%) inset;
+  // width: $card-w;
 }
 
 .card-place {
+  position: relative;
+
   width: $card-w;
   height: $card-h;
 
-  outline: 1px solid rgb(0 0 0 / 50%);
-  border-radius: 6px;
   box-shadow: 0px 0px 20px 5px rgb(0 0 0 / 19%) inset;
+
+  outline: 1px solid rgb(0 0 0 / 50%);
+  border-radius: $card-radius;
 }
 </style>
 
@@ -33,19 +22,10 @@
     @dragenter.prevent
     @dragover.prevent
     @drop="props.isDroppable ? draggable.meth.handleDropZone($event, props.zoneData) : null"
-    class="card-stack"
+    :class="['card-stack', props.isDraggable ? 'card-place' : '']"
   >
-    <!-- <div
-      :class="[props.isDroppable ? 'droppable' : '', 'card-stack']"
-      v-if="props.isDroppable"
-      @dragenter.prevent
-      @dragover.prevent
-      @drop="meth.onDropZone($event, { area: zoneName, areaID: zoneId })"
-      class="drag-zone"
-    ></div> -->
-
-    <div class="card-place">
-    </div>
+    <!-- <div class="card-place">
+    </div> -->
 
     <Card
       v-for="(card, idx) in props.stackData"

@@ -1,3 +1,19 @@
-$card-w: 100px;
-$card-h: 145px;
-$gap: 40px;
+$orig-stack-gap: 30px;
+
+$orig-card-w: 100px;
+$orig-card-h: 145px;
+$orig-card-radius: 6px;
+$orig-card-gap: 20px;
+
+$mult: 1;
+
+// calculated styles
+$stack-gap: $orig-stack-gap * $mult;
+
+$card-w: $orig-card-w * $mult;
+$card-h: $orig-card-h * $mult;
+$card-gap: $orig-card-gap * $mult;
+$card-radius: $orig-card-radius * $mult;
+
+$drag-card-w: $card-w;
+$drag-card-h: $card-h;

@@ -11,7 +11,7 @@ const state = reactive({
 })
 
 const meth = {
-  // #region game state
+  // #region game state change
   resetState() {
     state.isReady = false
 
@@ -88,7 +88,7 @@ const meth = {
 
     // state.stacks.deck[0][state.deckPosition].closed = false
   },
-  //#endregion game state
+  //#endregion game state change
 
   // #region game setters
   popNextDeckCard() {
@@ -96,19 +96,30 @@ const meth = {
     // else ++state.deckPosition
 
     if (state.stacks['deck'][0].length === 0) {
-      state.stacks['deck'][1].filter((item) => {
-        state.stacks['deck'][0].push(item)
+
+      state.stacks['deck'][1] = state.stacks['deck'][1].filter((item) => {
+        state.stacks['deck'][0].unshift(item)
+        return false
       })
+
     }
     else {
       const card = state.stacks['deck'][0].pop()
       card.closed = false
-      // console.log(card)
       state.stacks['deck'][1].push(card)
     }
 
+    console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
   },
+  // swapDeckCards() {
+  //   if (state.stacks['deck'][0].length === 0) {
+  //     state.stacks['deck'][1].filter((item) => {
+  //       state.stacks['deck'][0].push(item)
+  //     })
+  //   }
 
+  //   console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
+  // },
   toggleCardHide(zoneData, cardData, isHidden) {
     let cardIndex = meth.getIndexFromCard(zoneData, cardData)
 
@@ -118,7 +129,6 @@ const meth = {
 
     state.stacks[zoneData.name][zoneData.id][cardIndex].hidden = isHidden
   },
-
   pushCard(zoneData, cardData) {
     state.stacks[zoneData.name][zoneData.id].push(Object.assign({}, cardData))
   },
@@ -170,6 +180,27 @@ const meth = {
     if (!zoneData.id < 0) return
 
     return state.stacks[zoneData.name][zoneData.id][index]
+  },
+  getFinishZoneIdCompat(cardData) {
+    let idZone = -1
+
+    for (let i = 0; i < state.stacks.finish.length; i++) {
+      const stack = state.stacks.finish[i]
+
+      if (cardData.rank === 1 && stack.length === 0) {
+        idZone = i
+        break
+      }
+
+      const cardID = stack.findIndex((card) => card.suit === cardData.suit && card.rank === cardData.rank - 1)
+
+      if (cardID !== -1) {
+        idZone = i
+        break
+      }
+    }
+
+    return idZone
   }
   // #endregion game setters
 }
