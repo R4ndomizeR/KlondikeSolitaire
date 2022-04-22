@@ -111,8 +111,6 @@ const meth = {
     if (!targetZoneData) return
 
     game.meth.moveCard(cardData, zoneData, targetZoneData)
-    // game.meth.pushCard({ name: 'finish', id: zoneID}, cardData)
-    // game.meth.deleteCard(zoneData, cardData)
   },
   handlerStartDrag(event, zoneData, cardData, cardIndex) {
     if (!state.isDragActive || cardData.closed) {
@@ -202,8 +200,6 @@ const meth = {
         }
       }
     }
-
-    game.meth.checkEnd()
   },
 }
 

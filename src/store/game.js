@@ -125,6 +125,8 @@ const meth = {
 
     meth.pushCard(toZoneData, cardData)
     meth.deleteCard(fromZoneData, cardData)
+
+    meth.checkEnd()
   },
   pushCard(zoneData, cardData) {
     state.stacks[zoneData.name][zoneData.id].push(Object.assign({}, cardData))
@@ -150,9 +152,8 @@ const meth = {
       if (newLength) state.stacks.table[zoneData.id][newLength - 1].closed = false
     }
   },
-  handlerRightClickBoard(event) {
-    // console.log(event)
 
+  proceesAutoMoveDeck() {
     let success = false
 
     // last deck card
@@ -167,6 +168,10 @@ const meth = {
       }
     }
 
+    return success
+  },
+  proceesAutoMoveTable() {
+    let success = false
     // loop on table stacks
     for (const stackID in state.stacks.table) {
       if (!Object.hasOwnProperty.call(state.stacks.table, stackID)) continue
@@ -177,7 +182,7 @@ const meth = {
       // console.log(stackID, stack)
 
       const lastCard = stack[stack.length - 1]
-      if(lastCard.closed) return
+      if (lastCard.closed) return
 
       const targetZoneData = meth.getZoneDataCompat(lastCard)
       if (!targetZoneData) continue
@@ -185,9 +190,25 @@ const meth = {
       meth.moveCard(lastCard, { name: 'table', id: stackID }, targetZoneData)
 
       success = true
+      break // TODO
     }
 
-    if (success) meth.handlerRightClickBoard()
+    return success
+  },
+  handlerRightClickBoard(event) {
+    // console.log(event)
+
+    let success = meth.proceesAutoMoveDeck()
+
+    if (!success) {
+      success = meth.proceesAutoMoveTable()
+    }
+
+    if (success) {
+      setTimeout(() => {
+        meth.handlerRightClickBoard()
+      }, 500)
+    }
   },
   // #endregion game setters
 
