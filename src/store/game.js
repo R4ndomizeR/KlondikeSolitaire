@@ -111,15 +111,6 @@ const meth = {
 
     console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
   },
-  // swapDeckCards() {
-  //   if (state.stacks['deck'][0].length === 0) {
-  //     state.stacks['deck'][1].filter((item) => {
-  //       state.stacks['deck'][0].push(item)
-  //     })
-  //   }
-
-  //   console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
-  // },
   toggleCardHide(zoneData, cardData, isHidden) {
     let cardIndex = meth.getIndexFromCard(zoneData, cardData)
 
@@ -128,6 +119,12 @@ const meth = {
     // console.log('toggle', state.stacks[zoneData.name][zoneData.id][cardIndex])
 
     state.stacks[zoneData.name][zoneData.id][cardIndex].hidden = isHidden
+  },
+  moveCard(cardData, fromZoneData, toZoneData) {
+    console.log('moveCard', cardData, fromZoneData, toZoneData)
+
+    meth.pushCard(toZoneData, cardData)
+    meth.deleteCard(fromZoneData, cardData)
   },
   pushCard(zoneData, cardData) {
     state.stacks[zoneData.name][zoneData.id].push(Object.assign({}, cardData))
@@ -152,6 +149,45 @@ const meth = {
       const newLength = state.stacks.table[zoneData.id].length
       if (newLength) state.stacks.table[zoneData.id][newLength - 1].closed = false
     }
+  },
+  handlerRightClickBoard(event) {
+    // console.log(event)
+
+    let success = false
+
+    // last deck card
+    if (state.stacks.deck[1].length && state.stacks.deck[1][state.stacks.deck[1].length - 1]) {
+      const lastDeckCard = state.stacks.deck[1][state.stacks.deck[1].length - 1]
+
+      const targetZoneData = meth.getZoneDataCompat(lastDeckCard)
+
+      if (targetZoneData) {
+        meth.moveCard(lastDeckCard, { name: 'deck', id: 1 }, targetZoneData)
+        success = true
+      }
+    }
+
+    // loop on table stacks
+    for (const stackID in state.stacks.table) {
+      if (!Object.hasOwnProperty.call(state.stacks.table, stackID)) continue
+
+      const stack = state.stacks.table[stackID]
+      if (!stack.length) continue
+
+      // console.log(stackID, stack)
+
+      const lastCard = stack[stack.length - 1]
+      if(lastCard.closed) return
+
+      const targetZoneData = meth.getZoneDataCompat(lastCard)
+      if (!targetZoneData) continue
+
+      meth.moveCard(lastCard, { name: 'table', id: stackID }, targetZoneData)
+
+      success = true
+    }
+
+    if (success) meth.handlerRightClickBoard()
   },
   // #endregion game setters
 
@@ -181,7 +217,7 @@ const meth = {
 
     return state.stacks[zoneData.name][zoneData.id][index]
   },
-  getFinishZoneIdCompat(cardData) {
+  getZoneDataCompat(cardData) {
     let idZone = -1
 
     for (let i = 0; i < state.stacks.finish.length; i++) {
@@ -200,7 +236,9 @@ const meth = {
       }
     }
 
-    return idZone
+    if (idZone === -1) return null
+
+    return { name: 'finish', id: idZone }
   }
   // #endregion game setters
 }

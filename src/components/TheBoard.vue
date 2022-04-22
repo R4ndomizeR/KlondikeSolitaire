@@ -87,7 +87,7 @@
 </style>
 
 <template>
-  <div class="board" v-cloak v-if="state.isReady">
+  <div class="board" v-cloak v-if="state.isReady" @mousedown.middle="meth.handlerRightClickBoard($event)">
 
     <div class="board-top">
 

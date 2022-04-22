@@ -107,11 +107,12 @@ const meth = {
 
     console.log('handlerRightClick', cardData)
 
-    const zoneID = game.meth.getFinishZoneIdCompat(cardData)
-    if (zoneID === -1) return
+    const targetZoneData = game.meth.getZoneDataCompat(cardData)
+    if (!targetZoneData) return
 
-    game.meth.pushCard({ name: 'finish', id: zoneID}, cardData)
-    game.meth.deleteCard(zoneData, cardData)
+    game.meth.moveCard(cardData, zoneData, targetZoneData)
+    // game.meth.pushCard({ name: 'finish', id: zoneID}, cardData)
+    // game.meth.deleteCard(zoneData, cardData)
   },
   handlerStartDrag(event, zoneData, cardData, cardIndex) {
     if (!state.isDragActive || cardData.closed) {
@@ -153,8 +154,9 @@ const meth = {
         if (state.dragStack[0].rank === 13) {
 
           state.dragStack.forEach((card) => {
-            game.meth.pushCard(zoneData, card)
-            game.meth.deleteCard(state.dragZoneData, card)
+            game.meth.moveCard(card, state.dragZoneData, zoneData)
+            // game.meth.pushCard(zoneData, card)
+            // game.meth.deleteCard(state.dragZoneData, card)
           })
 
         }
@@ -167,8 +169,9 @@ const meth = {
         if (lastItem.rank === state.dragStack[0].rank + 1) {
 
           state.dragStack.forEach((card) => {
-            game.meth.pushCard(zoneData, card)
-            game.meth.deleteCard(state.dragZoneData, card)
+            game.meth.moveCard(card, state.dragZoneData, zoneData)
+            // game.meth.pushCard(zoneData, card)
+            // game.meth.deleteCard(state.dragZoneData, card)
           })
 
         }
@@ -182,10 +185,9 @@ const meth = {
 
       if (zoneLength === 0) {
         if (state.dragStack[0].rank === 1) {
-
-          game.meth.pushCard(zoneData, state.dragStack[0])
-          game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
-
+          game.meth.moveCard(state.dragStack[0], state.dragZoneData, zoneData)
+          // game.meth.pushCard(zoneData, state.dragStack[0])
+          // game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
         }
       }
       else {
@@ -194,10 +196,9 @@ const meth = {
         if (lastItem.suit !== state.dragStack[0].suit) return
 
         if (lastItem.rank === state.dragStack[0].rank - 1) {
-
-          game.meth.pushCard(zoneData, state.dragStack[0])
-          game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
-
+          game.meth.moveCard(state.dragStack[0], state.dragZoneData, zoneData)
+          // game.meth.pushCard(zoneData, state.dragStack[0])
+          // game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
         }
       }
     }
