@@ -46,10 +46,6 @@
   width: $card-w;
   height: $card-h;
 
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-
   &:hover {
     box-shadow: 0px 0px 6px 4px rgba(251, 255, 36, 0.7);
     outline: 1px solid rgba(0, 0, 0, 0.7);
