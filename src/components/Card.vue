@@ -1,13 +1,13 @@
 <style lang="scss" scoped>
 .card {
-  display: flex;
+  position: absolute;
 
   width: $card-w;
   height: $card-h;
 
-  border-radius: 6px;
+  border-radius: $card-radius;
 
-  position: absolute;
+  // image-rendering: -webkit-optimize-contrast;
 
   &.hidden {
     opacity: 0.01;
@@ -17,15 +17,17 @@
     top: 0 !important;
   }
 
-  &:not(.closed):hover {
-    // box-shadow: 0px 0px 6px 3px rgba(251, 255, 36, 0.7);
-    box-shadow: 0px 0px 6px 4px rgba(251, 255, 36, 0.7);
+  &:not(.closed) {
     outline: 1px solid rgba(0, 0, 0, 0.7);
   }
 
+  &:not(.closed):hover {
+    box-shadow: 0px 0px 6px 4px rgba(251, 255, 36, 0.7);
+  }
+
   @for $i from 1 through 13 {
-    &:not(:first-child):nth-child(#{$i}) {
-      top: #{($i - 2) * 20}px;
+    &:nth-child(#{$i}) {
+      top: #{($i - 1) * 20}px;
     }
   }
 }
@@ -36,13 +38,15 @@
     :class="getClassesList"
     :draggable="props.isDraggable"
     :style="getCardImageStyle"
-    @drag="onDragHandle2"
+    @drag="onDragHandleThrottle"
     @dragend="draggable.meth.handlerEndDrag($event)"
     @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData, props.cardIndex)"
-    @mousedown="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData, props.cardIndex) : null"
-    @mouseup="props.isDraggable ? draggable.meth.handlerMouseUp($event) : null"
+
+    @mousedown.left="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData, props.cardIndex) : null"
+    @mouseup.left="props.isDraggable ? draggable.meth.handlerMouseUp($event) : null"
+
+    @mousedown.right.prevent="draggable.meth.handlerRightClick($event, props.zoneData, props.cardData, props.cardIndex)"
   >
-  <!-- @drag="draggable.meth.handlerDrag($event)" -->
   </div>
 </template>
 
@@ -87,12 +91,13 @@ const props = defineProps({
 })
 
 const onDragHandle = (event) => {
+  // @drag="draggable.meth.handlerDrag($event)"
   draggable.meth.handlerDrag(event)
 }
 
-const onDragHandle2 = useThrottleFn((event) => {
+const onDragHandleThrottle = useThrottleFn((event) => {
   draggable.meth.handlerDrag(event)
-}, 10)
+}, 1000 / 74)
 
 const getCardImage = computed(() => {
   /*
