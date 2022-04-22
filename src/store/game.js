@@ -235,7 +235,7 @@ const meth = {
     if (success) {
       setTimeout(() => {
         meth.handlerRightClickBoard()
-      }, 500)
+      }, 250)
     }
   },
   // #endregion game setters
