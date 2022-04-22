@@ -59,8 +59,8 @@ const meth = {
     state.dragPos.x = newPosX
     state.dragPos.y = newPosY
   },
-  handlerMouseUp(event, zoneData, cardData, cardIndex) {
-    console.log('isDragActive', state.isDragActive)
+  handlerMouseUp(event) {
+    // console.log('isDragActive', state.isDragActive)
     meth.resetState()
   },
   handlerMouseDown(event, zoneData, cardData, cardIndex) {
@@ -69,7 +69,7 @@ const meth = {
       return
     }
 
-    console.log('handlerMouseDown', event, cardIndex, zoneData, cardData)
+    // console.log('handlerMouseDown', event, cardIndex, zoneData, cardData)
 
     state.shiftX = event.offsetX
     state.shiftY = event.offsetY
@@ -105,7 +105,7 @@ const meth = {
     if (game.meth.getStackLength(zoneData) - 1 !== cardIndex) return
     if (zoneData.name === 'finish') return
 
-    console.log('handlerRightClick', cardData)
+    // console.log('handlerRightClick', cardData)
 
     const targetZoneData = game.meth.getZoneDataCompat(cardData)
     if (!targetZoneData) return
@@ -118,7 +118,7 @@ const meth = {
       return
     }
 
-    console.log('startDrag', event, cardIndex, zoneData, cardData)
+    // console.log('startDrag', event, cardIndex, zoneData, cardData)
 
     // event.dataTransfer.setData('cardIndex', cardIndex)
     event.dataTransfer.dropEffect = 'move'
@@ -134,7 +134,7 @@ const meth = {
     meth.updateDragPosition(event.pageX, event.pageY)
   },
   handlerEndDrag(event) {
-    console.log('handlerEndDrag', state.dragZoneData, state.dragStack)
+    // console.log('handlerEndDrag', state.dragZoneData, state.dragStack)
 
     state.dragStack.forEach((card) => {
       game.meth.toggleCardHide(state.dragZoneData, card, false)
@@ -142,7 +142,7 @@ const meth = {
     meth.resetState()
   },
   handleDropZone(event, zoneData) {
-    console.log('handleDropZone', event, zoneData)
+    // console.log('handleDropZone', event, zoneData)
 
     const zoneLength = game.meth.getStackLength(zoneData)
 

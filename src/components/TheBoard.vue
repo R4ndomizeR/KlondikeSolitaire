@@ -1,6 +1,27 @@
 <style lang="scss" scoped>
+.board-wrap {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  height: inherit;
+
+  background-color: #0e8938;
+  box-shadow: 0px 0px 60px 27px rgb(0 0 0 / 67%) inset;
+}
+
 .board {
-  position: relative;
+  width: fit-content;
+  height: inherit;
+
+  display: flex;
+  // justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $stack-gap * 1.5;
+
+  margin-top: $stack-gap * 5;
 }
 
 .board-top {
@@ -9,29 +30,31 @@
 }
 
 .board-bottom {
-  margin-top: $stack-gap * 1.5;
+  //
 }
 
 // ------
 
 .deck-table {
   position: relative;
+
   display: flex;
   gap: $stack-gap;
 }
 
 .finish-table {
   position: relative;
+
   display: flex;
   flex-direction: row;
-
   gap: $stack-gap;
 }
 
 .stacks-table {
+  position: relative;
+
   height: auto; // 500px
 
-  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -43,6 +66,7 @@
 
 .deck-stack {
   position: relative;
+
   width: $card-w;
   height: $card-h;
 
@@ -55,21 +79,21 @@
 
 .deck-circle {
   position: absolute;
+
+  width: 80px * $mult;
+  height: 80px * $mult;
+
   left: 50%;
   top: 50%;
-  z-index: 0;
 
+  z-index: 0;
   transform: translate(-50%, -50%);
 
-
-	border: 10px solid #006203;
+  border: 10px solid #006203;
   filter: drop-shadow(0 0 15px #00ff08bc);
 
   // box-shadow: inset 0px 0px 20px 3px rgb(255 255 255 / 44%), 0px 0px 20px 3px rgb(255 255 255 / 44%);
-	border-radius: 50%;
-
-	width: 80px * $mult;
-	height: 80px * $mult;
+  border-radius: 50%;
 }
 
 .deck-card {
@@ -87,70 +111,73 @@
 </style>
 
 <template>
-  <div class="board" v-cloak v-if="state.isReady" @mousedown.middle="meth.handlerRightClickBoard($event)">
+  <div class="board-wrap" v-cloak v-if="state.isReady" @mousedown.right.prevent="meth.handlerRightClickBoard($event)">
+    <div class="board" >
+    <!-- @mousedown.middle -->
 
-    <div class="board-top">
+      <div class="board-top">
 
-      <div class="deck-table">
+        <div class="deck-table">
 
-        <div class="deck-stack" @click="meth.popNextDeckCard()">
-          <Card class="deck-card" v-if="state.stacks.deck[0].length" />
-          <div class="deck-circle"></div>
+          <div class="deck-stack" @click="meth.popNextDeckCard()">
+            <Card class="deck-card" v-if="state.stacks.deck[0].length" />
+            <div class="deck-circle"></div>
+          </div>
+
+          <div>
+            <Card
+              v-for="(card, idx) in state.stacks.deck[1]"
+              :key="game.meth.getKey(card)"
+              :card-data="card"
+              :card-index="idx"
+              :is-collapsed="true"
+              :is-draggable="true"
+              :is-droppable="false"
+              :zone-data="{ name: 'deck', id: 1 }"
+            />
+          </div>
+
         </div>
 
-        <div>
-          <Card
-            v-for="(card, idx) in state.stacks.deck[1]"
-            :key="game.meth.getKey(card)"
-            :card-data="card"
-            :card-index="idx"
+        <div class="finish-table">
+          <StackCards
+            v-for="(stack, idx) in state.stacks.finish"
+            :key="idx"
             :is-collapsed="true"
             :is-draggable="true"
-            :is-droppable="false"
-            :zone-data="{ name: 'deck', id: 1 }"
+            :is-droppable="true"
+            :stack-data="stack"
+            :zone-data="{ name: 'finish', id: idx }"
           />
         </div>
 
       </div>
 
-      <div class="finish-table">
+      <div class="board-bottom">
+
+        <div class="stacks-table">
+          <StackCards
+            v-for="(stack, idx) in state.stacks.table"
+            :key="idx"
+            :is-draggable="true"
+            :is-droppable="true"
+            :stack-data="stack"
+            :zone-data="{ name: 'table', id: idx }"
+          />
+        </div>
+
+      </div>
+
+      <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragPositionStyle">
         <StackCards
-          v-for="(stack, idx) in state.stacks.finish"
-          :key="idx"
-          :is-collapsed="true"
-          :is-draggable="true"
-          :is-droppable="true"
-          :stack-data="stack"
-          :zone-data="{ name: 'finish', id: idx }"
+          :is-collapsed="false"
+          :is-draggable="false"
+          :is-droppable="false"
+          :stack-data="draggable.state.dragStack"
         />
       </div>
 
     </div>
-
-    <div class="board-bottom">
-
-      <div class="stacks-table">
-        <StackCards
-          v-for="(stack, idx) in state.stacks.table"
-          :key="idx"
-          :is-draggable="true"
-          :is-droppable="true"
-          :stack-data="stack"
-          :zone-data="{ name: 'table', id: idx }"
-        />
-      </div>
-
-    </div>
-
-    <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragPositionStyle">
-      <StackCards
-        :is-collapsed="false"
-        :is-draggable="false"
-        :is-droppable="false"
-        :stack-data="draggable.state.dragStack"
-      />
-    </div>
-
   </div>
 </template>
 
@@ -166,6 +193,16 @@ import draggable from '@/store/draggable'
 
 const { state, meth } = game
 
+const dragPositionStyle = computed(() => {
+  return `transform: translate(${draggable.state.dragPos.x}px, ${draggable.state.dragPos.y}px);`
+  // return `left:${x.value}px; top:${y.value}px;`
+})
+
+onMounted(() => {
+  meth.resetState()
+  meth.initState()
+})
+
 // const x = ref(0)
 // const y = ref(0)
 
@@ -177,7 +214,6 @@ const { state, meth } = game
 //   },
 //   { eventFilter: throttleFilter(10),},
 // )
-
 // watch(
 //   draggable.state.dragPos,
 //   (pos) => {
@@ -186,23 +222,10 @@ const { state, meth } = game
 //     y.value = pos.y
 //   }
 // )
-
-const dragPositionStyle = computed(() => {
-  return `transform: translate(${draggable.state.dragPos.x}px, ${draggable.state.dragPos.y}px);`
-  // return `transform: translate(${x.value}px, ${y.value}px);`
-  // return `left:${x.value}px; top:${y.value}px;`
-})
-
 // const drag = ref(null)
-
 // watchEffect(() => {
 //   draggable.meth.setDragElement(drag.value)
 // }, {
 //   flush: 'post'
 // })
-
-onMounted(() => {
-  meth.resetState()
-  meth.initState()
-})
 </script>

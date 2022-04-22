@@ -6,7 +6,6 @@
   height: $card-h;
 
   border-radius: $card-radius;
-
   // image-rendering: -webkit-optimize-contrast;
 
   &.hidden {
@@ -36,8 +35,10 @@
 <template>
   <div
     :class="getClassesList"
-    :draggable="props.isDraggable"
     :style="getCardImageStyle"
+
+    :draggable="props.isDraggable"
+
     @drag="onDragHandleThrottle"
     @dragend="draggable.meth.handlerEndDrag($event)"
     @dragstart="draggable.meth.handlerStartDrag($event, props.zoneData, props.cardData, props.cardIndex)"
@@ -45,7 +46,7 @@
     @mousedown.left="props.isDraggable ? draggable.meth.handlerMouseDown($event, props.zoneData, props.cardData, props.cardIndex) : null"
     @mouseup.left="props.isDraggable ? draggable.meth.handlerMouseUp($event) : null"
 
-    @mousedown.right.prevent="draggable.meth.handlerRightClick($event, props.zoneData, props.cardData, props.cardIndex)"
+    @mousedown.right.prevent.stop="draggable.meth.handlerRightClick($event, props.zoneData, props.cardData, props.cardIndex)"
   >
   </div>
 </template>

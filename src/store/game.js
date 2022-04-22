@@ -40,7 +40,6 @@ const meth = {
     const result = state.stacks.finish.every(
       stack => stack.length === 13
     )
-    //TODO: auto finish
 
     if (!result) return
 
@@ -50,7 +49,7 @@ const meth = {
     setTimeout(() => {
       meth.resetState()
       meth.initState()
-    }, 3000)
+    }, 10000)
   },
 
   filldeck() {
@@ -109,7 +108,7 @@ const meth = {
       state.stacks['deck'][1].push(card)
     }
 
-    console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
+    // console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
   },
   toggleCardHide(zoneData, cardData, isHidden) {
     let cardIndex = meth.getIndexFromCard(zoneData, cardData)

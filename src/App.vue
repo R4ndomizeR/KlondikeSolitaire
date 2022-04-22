@@ -1,9 +1,5 @@
 <style>
-/* * {
-  overflow: hidden;
-} */
-
-[v-cloak] > * {
+[v-cloak]>* {
   display: none;
 }
 
@@ -23,14 +19,8 @@ body {
 }
 
 #app {
-  display: flex;
-  align-items: flex-start; /* center */
-  justify-content: center;
-  padding-top: 100px;
-  height: 100%;
-
-  background-color: #0e8938;
-  box-shadow: 0px 0px 60px 27px #000000ab inset;
+  width: inherit;
+  height: inherit;
 }
 </style>
 
