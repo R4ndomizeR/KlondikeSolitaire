@@ -182,7 +182,7 @@
 </template>
 
 <script  setup>
-import { computed, onMounted, ref, watch, watchEffect } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue'
 // import { throttleFilter, watchThrottled } from '@vueuse/core'
 
 import StackCards from './StackCards.vue'
@@ -201,6 +201,12 @@ const dragPositionStyle = computed(() => {
 onMounted(() => {
   meth.resetState()
   meth.initState()
+
+  document.addEventListener('keydown', meth.loadPrevState)
+})
+
+onBeforeMount(() => {
+  document.removeEventListener('keydown', meth.loadPrevState)
 })
 
 // const x = ref(0)

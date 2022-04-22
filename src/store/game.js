@@ -3,6 +3,8 @@ import { reactive, readonly } from "vue"
 const state = reactive({
   isReady: false,
 
+  history: [],
+
   stacks: {
     'deck': [[], []],
     'finish': [[], [], [], []],
@@ -34,8 +36,29 @@ const meth = {
 
     // meth.testFillFinishTable()
 
+    meth.saveState()
+
     state.isReady = true
   },
+  loadPrevState(event) {
+    if(!(event.keyCode === 90 && event.ctrlKey)) return
+    if(state.history.length < 2) return
+
+    // state.history.pop()
+
+    const oldState = state.history[state.history.length - 2]
+
+    console.log('loadPrevState', oldState)
+
+    state.stacks = JSON.parse(JSON.stringify(oldState))
+
+    state.history.pop()
+  },
+  saveState() {
+    state.history.push(JSON.parse(JSON.stringify(state.stacks)))
+    console.log('saveState', state.history)
+  },
+
   checkEnd() {
     const result = state.stacks.finish.every(
       stack => stack.length === 13
@@ -46,10 +69,10 @@ const meth = {
     console.log('YOU_WIN')
     alert('YOU_WIN')
 
-    setTimeout(() => {
-      meth.resetState()
-      meth.initState()
-    }, 10000)
+    // setTimeout(() => {
+    //   meth.resetState()
+    //   meth.initState()
+    // }, 10000)
   },
 
   filldeck() {
@@ -108,6 +131,8 @@ const meth = {
       state.stacks['deck'][1].push(card)
     }
 
+    meth.saveState()
+
     // console.log(state.stacks['deck'][0].length, state.stacks['deck'][1].length)
   },
   toggleCardHide(zoneData, cardData, isHidden) {
@@ -124,6 +149,8 @@ const meth = {
 
     meth.pushCard(toZoneData, cardData)
     meth.deleteCard(fromZoneData, cardData)
+
+    // if(saveState) meth.saveState()
 
     meth.checkEnd()
   },
@@ -163,6 +190,7 @@ const meth = {
 
       if (targetZoneData) {
         meth.moveCard(lastDeckCard, { name: 'deck', id: 1 }, targetZoneData)
+        meth.saveState()
         success = true
       }
     }
@@ -187,6 +215,7 @@ const meth = {
       if (!targetZoneData) continue
 
       meth.moveCard(lastCard, { name: 'table', id: stackID }, targetZoneData)
+      meth.saveState()
 
       success = true
       break // TODO

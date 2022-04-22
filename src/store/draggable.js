@@ -111,6 +111,7 @@ const meth = {
     if (!targetZoneData) return
 
     game.meth.moveCard(cardData, zoneData, targetZoneData)
+    game.meth.saveState()
   },
   handlerStartDrag(event, zoneData, cardData, cardIndex) {
     if (!state.isDragActive || cardData.closed) {
@@ -156,6 +157,7 @@ const meth = {
             // game.meth.pushCard(zoneData, card)
             // game.meth.deleteCard(state.dragZoneData, card)
           })
+          game.meth.saveState()
 
         }
       }
@@ -171,6 +173,7 @@ const meth = {
             // game.meth.pushCard(zoneData, card)
             // game.meth.deleteCard(state.dragZoneData, card)
           })
+          game.meth.saveState()
 
         }
       }
@@ -184,6 +187,7 @@ const meth = {
       if (zoneLength === 0) {
         if (state.dragStack[0].rank === 1) {
           game.meth.moveCard(state.dragStack[0], state.dragZoneData, zoneData)
+          game.meth.saveState()
           // game.meth.pushCard(zoneData, state.dragStack[0])
           // game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
         }
@@ -195,6 +199,7 @@ const meth = {
 
         if (lastItem.rank === state.dragStack[0].rank - 1) {
           game.meth.moveCard(state.dragStack[0], state.dragZoneData, zoneData)
+          game.meth.saveState()
           // game.meth.pushCard(zoneData, state.dragStack[0])
           // game.meth.deleteCard(state.dragZoneData, state.dragStack[0])
         }

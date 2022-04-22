@@ -24,7 +24,7 @@
     box-shadow: 0px 0px 6px 4px rgba(251, 255, 36, 0.7);
   }
 
-  @for $i from 1 through 13 {
+  @for $i from 1 through 20 {
     &:nth-child(#{$i}) {
       top: #{($i - 1) * 20}px;
     }
