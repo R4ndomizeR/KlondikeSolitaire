@@ -109,9 +109,12 @@ const getCardImage = computed(() => {
   */
   const suits = ['c', 'd', 's', 'h']
 
-  if (props.cardData.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
 
-  return new URL(`../assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`, import.meta.url).href
+  // if (props.cardData.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
+  // return new URL(`../assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`, import.meta.url).href
+
+  if (props.cardData.closed) return `/cards/back.png`
+  return `/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`
 })
 
 const getCardImageStyle = computed(() => {

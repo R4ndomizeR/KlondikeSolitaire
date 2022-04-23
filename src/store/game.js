@@ -86,7 +86,7 @@ const meth = {
 
     const oldState = state.history[state.history.length - 2]
 
-    console.log('loadPrevState', oldState)
+    // console.log('loadPrevState', oldState)
 
     state.stacks = JSON.parse(JSON.stringify(oldState))
 
@@ -94,7 +94,7 @@ const meth = {
   },
   saveState() {
     state.history.push(JSON.parse(JSON.stringify(state.stacks)))
-    console.log('saveState', state.history)
+    // console.log('saveState', state.history)
 
     // state.isControlsEnabled = true
   },
@@ -187,7 +187,7 @@ const meth = {
     state.stacks[zoneData.name][zoneData.id][cardIndex].hidden = isHidden
   },
   moveCard(cardData, fromZoneData, toZoneData) {
-    console.log('moveCard', cardData, fromZoneData, toZoneData)
+    // console.log('moveCard', cardData, fromZoneData, toZoneData)
 
     meth.pushCard(toZoneData, cardData)
     meth.deleteCard(fromZoneData, cardData)
