@@ -1,7 +1,10 @@
 import { reactive, readonly } from "vue"
 
+const delay = 100
+
 const state = reactive({
   isReady: false,
+  isControlsEnabled: false,
 
   history: [],
 
@@ -13,15 +16,48 @@ const state = reactive({
 })
 
 const meth = {
+  // #region test
+  testFinish() {
+    const arr = [
+      [1, 2, 3, 4],
+      [2, 3, 4, 1], //
+      [3, 2, 1, 4],
+      [4, 3, 2, 1], //
+    ]
+
+    let pos = 0 // Math.floor(Math.random() * arr.length)
+
+    for (let r = 13; r >= 1; r--) {
+
+      for (let s = 1; s <= 4; s++) {
+        // const pos = dir ? s : p
+
+        const card = {
+          suit: arr[pos][s - 1],
+          rank: r,
+          closed: false,
+          hidden: false,
+        }
+
+        state.stacks.table[s].push(card)
+      }
+
+      pos = pos < arr.length - 1 ? pos + 1 : 0
+    }
+  },
+  // #endregion test
+
   // #region game state change
   resetState() {
-    state.isReady = false
+    meth.setReady(false)
 
     state.stacks = {
       'deck': [[], []],
       'finish': [[], [], [], []],
       'table': [[], [], [], [], [], [], []],
     }
+
+    state.history.length = 0
   },
   initState() {
     meth.filldeck()
@@ -37,12 +73,14 @@ const meth = {
     // meth.testFillFinishTable()
 
     meth.saveState()
-
-    state.isReady = true
+  },
+  setReady(toggle) {
+    state.isReady = toggle
+    state.isControlsEnabled = toggle
   },
   loadPrevState(event) {
-    if(!(event.keyCode === 90 && event.ctrlKey)) return
-    if(state.history.length < 2) return
+    if (!(event.keyCode === 90 && event.ctrlKey)) return
+    if (state.history.length < 2) return
 
     // state.history.pop()
 
@@ -57,6 +95,8 @@ const meth = {
   saveState() {
     state.history.push(JSON.parse(JSON.stringify(state.stacks)))
     console.log('saveState', state.history)
+
+    // state.isControlsEnabled = true
   },
 
   checkEnd() {
@@ -67,12 +107,15 @@ const meth = {
     if (!result) return
 
     console.log('YOU_WIN')
-    alert('YOU_WIN')
 
-    // setTimeout(() => {
-    //   meth.resetState()
-    //   meth.initState()
-    // }, 10000)
+    setTimeout(() => {
+      const res = confirm('You win! Restart?')
+      if (res) {
+        meth.resetState()
+        meth.initState()
+        meth.setReady(true)
+      }
+    }, 1000)
   },
 
   filldeck() {
@@ -114,8 +157,7 @@ const meth = {
 
   // #region game setters
   popNextDeckCard() {
-    // if (state.deckPosition === state.deck.length - 1) state.deckPosition = 0
-    // else ++state.deckPosition
+    if (!state.isControlsEnabled) return
 
     if (state.stacks['deck'][0].length === 0) {
 
@@ -223,7 +265,8 @@ const meth = {
 
     return success
   },
-  handlerRightClickBoard(event) {
+  processAutoMove() {
+    state.isControlsEnabled = false
     // console.log(event)
 
     let success = meth.proceesAutoMoveDeck()
@@ -232,11 +275,19 @@ const meth = {
       success = meth.proceesAutoMoveTable()
     }
 
+    if (!success) state.isControlsEnabled = true
+
     if (success) {
       setTimeout(() => {
-        meth.handlerRightClickBoard()
-      }, 250)
+        meth.processAutoMove()
+      }, delay)
     }
+  },
+  handlerRightClickBoard(event) {
+    if (!state.isControlsEnabled) return
+    state.isControlsEnabled = false
+    meth.processAutoMove()
+    state.isControlsEnabled = true
   },
   // #endregion game setters
 
@@ -288,11 +339,11 @@ const meth = {
     if (idZone === -1) return null
 
     return { name: 'finish', id: idZone }
-  }
+  },
   // #endregion game setters
 }
 
 export default {
-  state: readonly(state),
+  state: (state),
   meth
 }

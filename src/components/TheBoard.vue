@@ -200,9 +200,13 @@ const dragPositionStyle = computed(() => {
 
 onMounted(() => {
   meth.resetState()
+
   meth.initState()
+  // meth.testFinish()
 
   document.addEventListener('keydown', meth.loadPrevState)
+
+  meth.setReady(true)
 })
 
 onBeforeMount(() => {

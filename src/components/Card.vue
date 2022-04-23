@@ -26,7 +26,7 @@
 
   @for $i from 1 through 20 {
     &:nth-child(#{$i}) {
-      top: #{($i - 1) * 20}px;
+      top: #{($i - 1) * $card-gap};
     }
   }
 }

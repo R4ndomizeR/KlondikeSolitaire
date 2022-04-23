@@ -64,6 +64,7 @@ const meth = {
     meth.resetState()
   },
   handlerMouseDown(event, zoneData, cardData, cardIndex) {
+    if(!game.state.isControlsEnabled) return
     if (cardData.closed) {
       event.preventDefault()
       return
@@ -101,6 +102,7 @@ const meth = {
     state.isDragActive = true
   },
   handlerRightClick(event, zoneData, cardData, cardIndex) {
+    if (!game.state.isControlsEnabled) return
     if (cardData.closed) return
     if (game.meth.getStackLength(zoneData) - 1 !== cardIndex) return
     if (zoneData.name === 'finish') return
