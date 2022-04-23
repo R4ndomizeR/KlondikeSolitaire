@@ -113,8 +113,8 @@ const getCardImage = computed(() => {
   // if (props.cardData.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
   // return new URL(`../assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`, import.meta.url).href
 
-  if (props.cardData.closed) return `/assets/cards/back.png`
-  return `/assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`
+  if (props.cardData.closed) return `./assets/cards/back.png`
+  return `./assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`
 })
 
 const getCardImageStyle = computed(() => {

@@ -15,7 +15,7 @@ export default ({ mode }) => {
     // To access env vars here use process.env.TEST_VAR
     plugins: [vue()],
     base: isDev ? '/' : '/KlondikeSolitaire/',
-    // publicDir: '/',
+    // publicDir: isDev ? 'public' : false,
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
