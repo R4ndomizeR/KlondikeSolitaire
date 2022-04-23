@@ -1,6 +1,6 @@
 import { reactive, readonly } from "vue"
 
-const delay = 100
+const delay = 150
 
 const state = reactive({
   isReady: false,

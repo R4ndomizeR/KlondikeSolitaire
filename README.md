@@ -3,6 +3,8 @@
 
 ### Demo
 
+[Live Demo](https://r4ndomizer.github.io/KlondikeSolitaire/)
+
 ![Drag](readme/drag.webp)
 ![Win](readme/win.webp)
 
