@@ -10,7 +10,7 @@
   background-color: #0e8938;
   box-shadow: 0px 0px 60px 27px rgb(0 0 0 / 67%) inset;
 
-  padding: $stack-gap * 5 0 $stack-gap / 2 0;
+  padding: $stack-gap * 5 0 $stack-gap 0;
 }
 
 .board {
@@ -108,7 +108,7 @@
 }
 
 .board-help {
-  margin-bottom: 20px;
+  // margin-bottom: 20px;
 
   width: -webkit-fill-available;
 
