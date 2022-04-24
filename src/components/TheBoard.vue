@@ -113,8 +113,6 @@
 <template>
   <div class="board-wrap" v-cloak v-if="state.isReady" @mousedown.right.prevent="meth.handlerRightClickBoard($event)">
     <div class="board" >
-    <!-- @mousedown.middle -->
-
       <div class="board-top">
 
         <div class="deck-table">
@@ -196,6 +194,16 @@ const { state, meth } = game
 const dragPositionStyle = computed(() => {
   return `transform: translate(${draggable.state.dragPos.x}px, ${draggable.state.dragPos.y}px);`
   // return `left:${x.value}px; top:${y.value}px;`
+})
+
+onBeforeMount(()=> {
+  game.state.suits.forEach(suit => {
+    for (let rank = 1; rank <= 13; rank++) {
+      let el = document.createElement('img')
+      el.src = new URL(`../assets/images/cards/${rank}${suit}.png`, import.meta.url).href
+      el = null
+    }
+  })
 })
 
 onMounted(() => {

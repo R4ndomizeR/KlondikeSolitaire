@@ -6,6 +6,8 @@ const state = reactive({
   isReady: false,
   isControlsEnabled: false,
 
+  suits:  ['c', 'd', 's', 'h'],
+
   history: [],
 
   stacks: {

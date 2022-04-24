@@ -29,14 +29,29 @@
       top: #{($i - 1) * $card-gap};
     }
   }
-}
-</style>
 
+  $suits: 'c', 'd', 's', 'h';
+
+  @each $suit in $suits {
+    @for $rank from 1 through 13 {
+      &.card__#{$rank}#{$suit} {
+        background: url("@/assets/images/cards/#{$rank}#{$suit}.png");
+        background-size: cover;
+      }
+    }
+  }
+
+  &.card__back {
+    background: url("@/assets/images/cards/back.png");
+    background-size: cover;
+  }
+}
+
+</style>
+<!-- :style="getCardImageStyle" -->
 <template>
   <div
     :class="getClassesList"
-    :style="getCardImageStyle"
-
     :draggable="props.isDraggable"
 
     @drag="onDragHandleThrottle"
@@ -55,6 +70,7 @@
 import { computed } from 'vue'
 import draggable from '@/store/draggable'
 import { useDebounceFn, useThrottleFn } from '@vueuse/core'
+import game from '@/store/game'
 
 const props = defineProps({
   isDraggable: {
@@ -100,30 +116,37 @@ const onDragHandleThrottle = useThrottleFn((event) => {
   draggable.meth.handlerDrag(event)
 }, 1000 / 74)
 
-const getCardImage = computed(() => {
-  /*
-    Clubs - Трефы (ч)
-    Diamonds - Бубны (к)
-    Spades - Пики (ч)
-    Hearts - Червы (к)
-  */
-  const suits = ['c', 'd', 's', 'h']
+// const getCardImage = computed(() => {
+//   /*
+//     Clubs - Трефы (ч)
+//     Diamonds - Бубны (к)
+//     Spades - Пики (ч)
+//     Hearts - Червы (к)
+//   */
+
+//   const suits = ['c', 'd', 's', 'h']
+
+//   // if (props.cardData.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
+//   // return new URL(`../assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`, import.meta.url).href
+
+//   if (props.cardData.closed) return `./assets/cards/back.png`
+//   return `./assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`
+// })
+
+// const getCardImageStyle = computed(() => {
+//   return `background: url(${getCardImage.value}); background-size: cover;`
+// })
 
 
-  // if (props.cardData.closed) return new URL(`../assets/cards/back.png`, import.meta.url).href
-  // return new URL(`../assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`, import.meta.url).href
-
-  if (props.cardData.closed) return `./assets/cards/back.png`
-  return `./assets/cards/${props.cardData.rank}${suits[props.cardData.suit - 1]}.png`
-})
-
-const getCardImageStyle = computed(() => {
-  return `background: url(${getCardImage.value}); background-size: cover;`
+const getCardFaceClass = computed(()=> {
+  if (props.cardData.closed) return 'back'
+  return `${props.cardData.rank}${game.state.suits[props.cardData.suit - 1]}`
 })
 
 const getClassesList = computed(() => {
   return [
     'card',
+    `card__${getCardFaceClass.value}`,
     props.cardData.hidden ? 'hidden' : '',
     props.cardData.closed ? 'closed' : '',
     props.isCollapsed ? 'collapsed' : '',
