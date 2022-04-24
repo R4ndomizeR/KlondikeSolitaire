@@ -9,6 +9,8 @@
 
   background-color: #0e8938;
   box-shadow: 0px 0px 60px 27px rgb(0 0 0 / 67%) inset;
+
+  padding: $stack-gap * 5 0 $stack-gap / 2 0;
 }
 
 .board {
@@ -21,16 +23,12 @@
   align-items: stretch;
   gap: $stack-gap * 1.5;
 
-  margin-top: $stack-gap * 5;
+  // margin-top: $stack-gap * 5;
 }
 
 .board-top {
   display: flex;
   justify-content: space-between;
-}
-
-.board-bottom {
-  //
 }
 
 // ------
@@ -108,10 +106,40 @@
   left: 0px;
   top: 0px;
 }
+
+.board-help {
+  margin-bottom: 20px;
+
+  width: -webkit-fill-available;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.help-item{
+  text-shadow: 0 0 5px rgb(0, 0, 0);
+  display: flex;
+  gap: 10px;
+}
+.help-hotkey {
+  flex: 1;
+
+  color: rgb(239, 239, 239);
+  font: normal 500 14px 'Segoe UI';
+
+  text-align: end;
+}
+.help-desc {
+  flex: 1;
+
+  color: rgb(159, 199, 255);
+  font: normal 500 14px 'Segoe UI';
+}
 </style>
 
 <template>
   <div class="board-wrap" v-cloak v-if="state.isReady" @mousedown.right.prevent="meth.handlerRightClickBoard($event)" @contextmenu.prevent>
+
     <div class="board" >
       <div class="board-top">
 
@@ -165,17 +193,32 @@
         </div>
 
       </div>
-
-      <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragPositionStyle">
-        <StackCards
-          :is-collapsed="false"
-          :is-draggable="false"
-          :is-droppable="false"
-          :stack-data="draggable.state.dragStack"
-        />
-      </div>
-
     </div>
+
+    <div class="board-drag" v-if="draggable.state.isDragActive" :style="dragPositionStyle">
+      <StackCards
+        :is-collapsed="false"
+        :is-draggable="false"
+        :is-droppable="false"
+        :stack-data="draggable.state.dragStack"
+      />
+    </div>
+
+    <div class="board-help">
+      <div class="help-item">
+        <span class="help-hotkey">Ctrl + Z</span>
+        <span class="help-desc">Undo the last move</span>
+      </div>
+      <div class="help-item">
+        <span class="help-hotkey">Right-click on a card</span>
+        <span class="help-desc">Move the card to the finish stack</span>
+      </div>
+      <div class="help-item">
+        <span class="help-hotkey">Right-click on the board</span>
+        <span class="help-desc">Move all available cards to the finish stack</span>
+      </div>
+    </div>
+
   </div>
 </template>
 

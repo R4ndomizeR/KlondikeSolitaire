@@ -6,7 +6,7 @@
   height: $card-h;
 
   border-radius: $card-radius;
-  // image-rendering: -webkit-optimize-contrast;
+  image-rendering: -webkit-optimize-contrast;
 
   &.hidden {
     opacity: 0.01;
