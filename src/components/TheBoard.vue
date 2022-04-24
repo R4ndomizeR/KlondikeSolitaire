@@ -111,7 +111,7 @@
 </style>
 
 <template>
-  <div class="board-wrap" v-cloak v-if="state.isReady" @mousedown.right.prevent="meth.handlerRightClickBoard($event)">
+  <div class="board-wrap" v-cloak v-if="state.isReady" @mousedown.right.prevent="meth.handlerRightClickBoard($event)" @contextmenu.prevent>
     <div class="board" >
       <div class="board-top">
 
@@ -201,7 +201,7 @@ onBeforeMount(()=> {
     for (let rank = 1; rank <= 13; rank++) {
       let el = document.createElement('img')
       el.src = new URL(`../assets/images/cards/${rank}${suit}.png`, import.meta.url).href
-      el = null
+      // el = null
     }
   })
 })
