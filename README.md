@@ -9,4 +9,4 @@
 ![Win](readme/win.webp)
 
 ### Credits
-[vector-playing-cards](https://code.google.com/archive/p/vector-playing-cards/)
+[vector-playing-cards (png images)](https://code.google.com/archive/p/vector-playing-cards/)
