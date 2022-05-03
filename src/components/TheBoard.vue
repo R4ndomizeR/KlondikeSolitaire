@@ -211,11 +211,11 @@
       </div>
       <div class="help-item">
         <span class="help-hotkey">Right-click on a card</span>
-        <span class="help-desc">Move the card to the finish stack</span>
+        <span class="help-desc">Move a card to the foundation</span>
       </div>
       <div class="help-item">
-        <span class="help-hotkey">Right-click on the board</span>
-        <span class="help-desc">Move all available cards to the finish stack</span>
+        <span class="help-hotkey">Right-click on the background</span>
+        <span class="help-desc">Move all available cards to the foundations</span>
       </div>
     </div>
 
