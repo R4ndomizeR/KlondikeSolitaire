@@ -25,9 +25,21 @@ body {
 </style>
 
 <template>
+  <WinFirework v-if="game.meth.getWin.value" />
   <TheBoard />
 </template>
 
 <script setup>
+import { computed, onMounted, ref, watch } from 'vue'
 import TheBoard from './components/TheBoard.vue'
+import WinFirework from './components/WinFirework.vue'
+import game from './store/game'
+
+// onMounted(()=> {
+//   console.log(game.meth.getWin.value)
+
+//   setTimeout(() => {
+//     game.meth.setWin(true)
+//   }, 1000);
+// })
 </script>

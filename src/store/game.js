@@ -1,10 +1,11 @@
-import { reactive, readonly } from "vue"
+import { computed, reactive, readonly } from "vue"
 
 const delay = 150
 
 const state = reactive({
   isReady: false,
   isControlsEnabled: false,
+  isWin: false,
 
   suits:  ['c', 'd', 's', 'h'],
 
@@ -81,6 +82,7 @@ const meth = {
     state.isControlsEnabled = toggle
   },
   loadPrevState(event) {
+    if(!state.isControlsEnabled) return
     if (!(event.keyCode === 90 && event.ctrlKey)) return
     if (state.history.length < 2) return
 
@@ -108,16 +110,16 @@ const meth = {
 
     if (!result) return
 
-    console.log('YOU_WIN')
+    meth.setWin(true)
 
-    setTimeout(() => {
-      const res = confirm('You win! Restart?')
-      if (res) {
-        meth.resetState()
-        meth.initState()
-        meth.setReady(true)
-      }
-    }, 1000)
+    // setTimeout(() => {
+    //   const res = confirm('You win! Restart?')
+    //   if (res) {
+    //     meth.resetState()
+    //     meth.initState()
+    //     meth.setReady(true)
+    //   }
+    // }, 1000)
   },
 
   filldeck() {
@@ -158,6 +160,11 @@ const meth = {
   //#endregion game state change
 
   // #region game setters
+  setWin(val) {
+    state.isControlsEnabled = false
+    state.isWin = val
+    console.log('YOU_WIN')
+  },
   popNextDeckCard() {
     if (!state.isControlsEnabled) return
 
@@ -294,6 +301,9 @@ const meth = {
   // #endregion game setters
 
   // #region game getters
+  getWin: computed(() => {
+    return state.isWin
+  }),
   getKey(cardData) {
     return `${cardData?.rank}-${cardData?.suit}`
   },
