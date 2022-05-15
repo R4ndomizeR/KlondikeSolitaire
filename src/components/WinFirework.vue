@@ -19,6 +19,23 @@ canvas {
 
 <script setup>
 import { onMounted } from 'vue'
+import fireStart from '@/assets/sounds/firework/start.mp3'
+import fire1 from '@/assets/sounds/firework/1.mp3'
+import fire2 from '@/assets/sounds/firework/2.mp3'
+import fire3 from '@/assets/sounds/firework/3.mp3'
+import fire4 from '@/assets/sounds/firework/4.mp3'
+import fire5 from '@/assets/sounds/firework/5.mp3'
+
+const fires = [fire1, fire2, fire3, fire4, fire5]
+
+function randomInteger(min, max) {
+  let rand = min + Math.random() * (max + 1 - min);
+  return Math.floor(rand);
+}
+
+function getRandomFire() {
+  return fires[randomInteger(0,fires.length)]
+}
 
 onMounted(() => {
   var c = document.getElementById("firework")
@@ -42,6 +59,8 @@ onMounted(() => {
 
   function newShell() {
 
+    new Audio(fireStart).play()
+
     var left = (Math.random() > 0.5)
     var shell = {}
     shell.x = (1 * left)
@@ -55,6 +74,8 @@ onMounted(() => {
   }
 
   function newPass(shell) {
+
+    new Audio(getRandomFire()).play()
 
     var pasCount = Math.ceil(Math.pow(shell.size, 2) * Math.PI)
 

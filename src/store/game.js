@@ -14,6 +14,8 @@ const state = reactive({
   isControlsEnabled: false,
   isWin: false,
 
+  delayTime: delay,
+
   suits:  ['c', 'd', 's', 'h'],
 
   history: [],
@@ -89,6 +91,7 @@ const meth = {
     state.isControlsEnabled = toggle
   },
   loadPrevState(event) {
+    if(state.isWin) return
     if(!state.isControlsEnabled) return
     if (!(event.keyCode === 90 && event.ctrlKey)) return
     if (state.history.length < 2) return
@@ -304,16 +307,19 @@ const meth = {
 
     if (!success) state.isControlsEnabled = true
 
+    state.delayTime -= 2
+
     if (success) {
       setTimeout(() => {
         meth.processAutoMove()
-      }, delay)
+      }, state.delayTime)
     }
   },
   handlerRightClickBoard(event) {
     if (!state.isControlsEnabled) return
     state.isControlsEnabled = false
     meth.processAutoMove()
+    state.delayTime = delay
     state.isControlsEnabled = true
   },
   // #endregion game setters
