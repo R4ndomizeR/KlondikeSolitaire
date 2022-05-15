@@ -3,6 +3,9 @@ import { useThrottleFn } from '@vueuse/core'
 import { markRaw, nextTick, reactive, readonly, computed } from 'vue'
 import game from './game'
 
+import startMoveFX from '@/assets/sounds/startmove.mp3'
+import endMoveFX from '@/assets/sounds/endmove.mp3'
+
 const state = reactive({
   isDragActive: false,
 
@@ -112,6 +115,8 @@ const meth = {
     const targetZoneData = game.meth.getZoneDataCompat(cardData)
     if (!targetZoneData) return
 
+    new Audio(endMoveFX).play()
+
     game.meth.moveCard(cardData, zoneData, targetZoneData)
     game.meth.saveState()
   },
@@ -120,6 +125,9 @@ const meth = {
       event.preventDefault()
       return
     }
+
+    new Audio(startMoveFX).play()
+
 
     // console.log('startDrag', event, cardIndex, zoneData, cardData)
 
@@ -138,6 +146,8 @@ const meth = {
   },
   handlerEndDrag(event) {
     // console.log('handlerEndDrag', state.dragZoneData, state.dragStack)
+
+    new Audio(endMoveFX).play()
 
     state.dragStack.forEach((card) => {
       game.meth.toggleCardHide(state.dragZoneData, card, false)

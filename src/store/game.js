@@ -1,4 +1,11 @@
 import { computed, reactive, readonly } from "vue"
+import nextDeckFX from '@/assets/sounds/nextdeck.mp3'
+import moveDeckFX from '@/assets/sounds/movedeck.mp3'
+import endMoveFX from '@/assets/sounds/endmove.mp3'
+import dropFX from '@/assets/sounds/drop.wav'
+import flipFX from '@/assets/sounds/flip.mp3'
+import backFX from '@/assets/sounds/back.wav'
+
 
 const delay = 150
 
@@ -86,6 +93,8 @@ const meth = {
     if (!(event.keyCode === 90 && event.ctrlKey)) return
     if (state.history.length < 2) return
 
+    new Audio(backFX).play()
+
     // state.history.pop()
 
     const oldState = state.history[state.history.length - 2]
@@ -169,14 +178,18 @@ const meth = {
     if (!state.isControlsEnabled) return
 
     if (state.stacks['deck'][0].length === 0) {
+      if(state.stacks['deck'][1].length !== 0)
+        new Audio(moveDeckFX).play()
+      else
+        new Audio(dropFX).play()
 
       state.stacks['deck'][1] = state.stacks['deck'][1].filter((item) => {
         state.stacks['deck'][0].unshift(item)
         return false
       })
-
     }
     else {
+      new Audio(nextDeckFX).play()
       const card = state.stacks['deck'][0].pop()
       card.closed = false
       state.stacks['deck'][1].push(card)
@@ -223,10 +236,12 @@ const meth = {
       state.stacks[zoneData.name][zoneData.id].splice(index, 1)
     }
 
-    // FIXME: возможно будет открываться предпоследняя, но это не точно
     if (zoneData.name === 'table') {
       const newLength = state.stacks.table[zoneData.id].length
-      if (newLength) state.stacks.table[zoneData.id][newLength - 1].closed = false
+      if (newLength) {
+        // new Audio(flipFX).play()
+        state.stacks.table[zoneData.id][newLength - 1].closed = false
+      }
     }
   },
 
@@ -240,6 +255,7 @@ const meth = {
       const targetZoneData = meth.getZoneDataCompat(lastDeckCard)
 
       if (targetZoneData) {
+        new Audio(endMoveFX).play()
         meth.moveCard(lastDeckCard, { name: 'deck', id: 1 }, targetZoneData)
         meth.saveState()
         success = true
@@ -264,6 +280,8 @@ const meth = {
 
       const targetZoneData = meth.getZoneDataCompat(lastCard)
       if (!targetZoneData) continue
+
+      new Audio(endMoveFX).play()
 
       meth.moveCard(lastCard, { name: 'table', id: stackID }, targetZoneData)
       meth.saveState()
