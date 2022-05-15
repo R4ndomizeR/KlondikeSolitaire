@@ -4,7 +4,6 @@ import moveDeckFX from '@/assets/sounds/movedeck.mp3'
 import endMoveFX from '@/assets/sounds/endmove.mp3'
 import dropFX from '@/assets/sounds/drop.wav'
 import flipFX from '@/assets/sounds/flip.mp3'
-import backFX from '@/assets/sounds/back.wav'
 
 
 const delay = 150
@@ -96,7 +95,7 @@ const meth = {
     if (!(event.keyCode === 90 && event.ctrlKey)) return
     if (state.history.length < 2) return
 
-    new Audio(backFX).play()
+    new Audio(dropFX).play()
 
     // state.history.pop()
 
@@ -192,7 +191,7 @@ const meth = {
       })
     }
     else {
-      new Audio(nextDeckFX).play()
+      new Audio(flipFX).play()
       const card = state.stacks['deck'][0].pop()
       card.closed = false
       state.stacks['deck'][1].push(card)
